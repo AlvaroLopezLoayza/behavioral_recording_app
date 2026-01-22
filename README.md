@@ -33,11 +33,7 @@ The application follows Clean Architecture with three distinct layers:
 
 ### Prerequisites
 
-<<<<<<< HEAD
 - Flutter SDK (3.7.2 or higher)
-=======
--Flutter SDK (3.7.2 or higher)
->>>>>>> 3585d933fe69de83353bd204e6dd51a87564f5df
 - Dart SDK
 - Supabase account
 
