@@ -46,13 +46,14 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             if (state is Authenticated) {
               return const BehaviorDefinitionListPage();
-            } else if (state is Unauthenticated) {
-              return const LoginPage();
+            } else if (state is AuthInitial) {
+              // Show splash only on initial startup check
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
             }
-            // Show splash or loading while checking status
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            // For Unauthenticated, AuthLoading, and AuthError, let LoginPage handle the UI
+            return const LoginPage();
           },
         ),
       ),

@@ -27,7 +27,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw ServerException(e.message, e.statusCode);
     } catch (e) {
-      throw ServerException('Failed to sign in');
+      throw ServerException('Failed to sign in: $e');
     }
   }
 
@@ -43,7 +43,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw ServerException(e.message, e.statusCode);
     } catch (e) {
-      throw ServerException('Failed to sign up');
+      throw ServerException('Failed to sign up: $e');
     }
   }
 
