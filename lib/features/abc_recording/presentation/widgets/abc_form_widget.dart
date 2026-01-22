@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'context_selector.dart';
 
 class AbcFormWidget extends StatelessWidget {
   final GlobalKey<FormBuilderState> formKey;
   final VoidCallback onSave;
   final bool isLoading;
+  final String patientId;
 
   const AbcFormWidget({
     super.key,
     required this.formKey,
     required this.onSave,
     this.isLoading = false,
+    required this.patientId,
   });
 
   @override
@@ -36,6 +36,17 @@ class AbcFormWidget extends StatelessWidget {
     ),
     const SizedBox(height: 16),
     
+    // Context Selection
+    _buildInputCard(
+      context, 
+      label: 'Contexto / Ambiente', 
+      child: ContextSelector(
+        patientId: patientId,
+        name: 'context_id',
+      ),
+    ),
+    const SizedBox(height: 16),
+
     _buildInputCard(
       context,
       label: 'Antecedente',

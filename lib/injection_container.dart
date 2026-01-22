@@ -19,6 +19,7 @@ import 'features/abc_recording/presentation/bloc/abc_recording_bloc.dart';
 
 // Analysis Feature
 import 'features/analysis/domain/usecases/get_behavior_trend.dart';
+import 'features/analysis/domain/usecases/get_conditional_probabilities.dart';
 import 'features/analysis/presentation/bloc/analysis_bloc.dart';
 
 // Authentication Feature
@@ -26,7 +27,38 @@ import 'features/authentication/data/datasources/auth_remote_datasource.dart';
 import 'features/authentication/data/repositories/auth_repository_impl.dart';
 import 'features/authentication/domain/repositories/auth_repository.dart';
 import 'features/authentication/domain/usecases/auth_usecases.dart';
+
+// Hypothesis Feature
+import 'features/hypothesis/data/datasources/hypothesis_remote_datasource.dart';
+import 'features/hypothesis/data/repositories/hypothesis_repository_impl.dart';
+import 'features/hypothesis/domain/repositories/hypothesis_repository.dart';
+import 'features/hypothesis/presentation/bloc/hypothesis_bloc.dart';
+
+// Intervention Feature
+import 'features/intervention/data/datasources/intervention_remote_datasource.dart';
+import 'features/intervention/data/repositories/intervention_repository_impl.dart';
+import 'features/intervention/domain/repositories/intervention_repository.dart';
+import 'features/intervention/presentation/bloc/intervention_bloc.dart';
 import 'features/authentication/presentation/bloc/auth_bloc.dart';
+
+// Patient Feature
+import 'features/patient/data/datasources/patient_remote_datasource.dart';
+import 'features/patient/data/repositories/patient_repository_impl.dart';
+import 'features/patient/domain/repositories/patient_repository.dart';
+import 'features/patient/presentation/bloc/patient_bloc.dart';
+import 'features/patient/presentation/bloc/patient_access_bloc.dart';
+
+// Context Feature
+import 'features/context/data/datasources/context_remote_datasource.dart';
+import 'features/context/data/repositories/context_repository_impl.dart';
+import 'features/context/domain/repositories/context_repository.dart';
+import 'features/context/presentation/bloc/context_bloc.dart';
+
+// Hypothesis Feature
+import 'features/hypothesis/data/datasources/hypothesis_remote_datasource.dart';
+import 'features/hypothesis/data/repositories/hypothesis_repository_impl.dart';
+import 'features/hypothesis/domain/repositories/hypothesis_repository.dart';
+import 'features/hypothesis/presentation/bloc/hypothesis_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -61,6 +93,14 @@ Future<void> initializeDependencies() async {
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
 
+  sl.registerLazySingleton<HypothesisRemoteDataSource>(
+    () => HypothesisRemoteDataSourceImpl(client: sl()),
+  );
+
+  sl.registerLazySingleton<HypothesisRepository>(
+    () => HypothesisRepositoryImpl(remoteDataSource: sl()),
+  );
+
   // Use cases
   sl.registerLazySingleton(() => CreateBehaviorDefinition(sl()));
   sl.registerLazySingleton(() => GetBehaviorDefinitions(sl()));
@@ -69,6 +109,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetRecordsByBehavior(sl()));
   
   sl.registerLazySingleton(() => GetBehaviorTrend(sl()));
+  sl.registerLazySingleton(() => GetConditionalProbabilities(sl()));
   
   sl.registerLazySingleton(() => SignIn(sl()));
   sl.registerLazySingleton(() => SignUp(sl()));
@@ -91,7 +132,10 @@ Future<void> initializeDependencies() async {
   );
   
   sl.registerFactory(
-    () => AnalysisBloc(getBehaviorTrend: sl()),
+    () => AnalysisBloc(
+      getBehaviorTrend: sl(),
+      getConditionalProbabilities: sl(),
+    ),
   );
   
   sl.registerFactory(
@@ -100,6 +144,64 @@ Future<void> initializeDependencies() async {
       signUp: sl(),
       signOut: sl(),
       getCurrentUser: sl(),
+    ),
+  );
+
+  // Patient Feature
+  sl.registerLazySingleton<PatientRemoteDataSource>(
+    () => PatientRemoteDataSourceImpl(supabaseClient: sl()),
+  );
+
+  sl.registerLazySingleton<PatientRepository>(
+    () => PatientRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerFactory(
+    () => PatientBloc(
+      repository: sl(),
+      supabaseClient: sl(),
+    ),
+  );
+  
+  sl.registerFactory(
+    () => PatientAccessBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Context Feature
+  sl.registerLazySingleton<ContextRemoteDataSource>(
+    () => ContextRemoteDataSourceImpl(client: sl()),
+  );
+
+  sl.registerLazySingleton<ContextRepository>(
+    () => ContextRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerFactory(
+    () => ContextBloc(
+      repository: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => HypothesisBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Intervention Feature
+  sl.registerLazySingleton<InterventionRemoteDataSource>(
+    () => InterventionRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<InterventionRepository>(
+    () => InterventionRepositoryImpl(sl()),
+  );
+
+  sl.registerFactory(
+    () => InterventionBloc(
+      repository: sl(),
     ),
   );
 }

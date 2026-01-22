@@ -71,6 +71,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   mockito: ^5.4.4
   bloc_test: ^9.1.5
+  build_runner: ^2.4.8
   flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
@@ -93,6 +94,8 @@ flutter:
   # Environment variables
   assets:
     - .env
+    - assets/icon/
+    - assets/images/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

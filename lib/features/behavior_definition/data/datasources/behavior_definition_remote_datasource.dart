@@ -8,10 +8,10 @@ abstract class BehaviorDefinitionRemoteDataSource {
   Future<BehaviorDefinitionModel> createDefinition(BehaviorDefinitionModel model);
   
   /// Get all behavior definitions for the current user
-  Future<List<BehaviorDefinitionModel>> getDefinitions();
+  Future<List<BehaviorDefinitionModel>> getDefinitions({String? patientId});
   
   /// Watch behavior definitions with real-time updates
-  Stream<List<BehaviorDefinitionModel>> watchDefinitions();
+  Stream<List<BehaviorDefinitionModel>> watchDefinitions({String? patientId});
   
   /// Update an existing behavior definition
   Future<BehaviorDefinitionModel> updateDefinition(BehaviorDefinitionModel model);
@@ -44,12 +44,13 @@ class BehaviorDefinitionRemoteDataSourceImpl implements BehaviorDefinitionRemote
   }
 
   @override
-  Future<List<BehaviorDefinitionModel>> getDefinitions() async {
+  Future<List<BehaviorDefinitionModel>> getDefinitions({String? patientId}) async {
     try {
-      final response = await supabaseClient
-          .from('behavior_definitions')
-          .select()
-          .order('created_at', ascending: false);
+      var query = supabaseClient.from('behavior_definitions').select();
+      if (patientId != null) {
+        query = query.eq('patient_id', patientId);
+      }
+      final response = await query.order('created_at', ascending: false);
       
       return (response as List)
           .map((json) => BehaviorDefinitionModel.fromJson(json))
@@ -62,11 +63,16 @@ class BehaviorDefinitionRemoteDataSourceImpl implements BehaviorDefinitionRemote
   }
 
   @override
-  Stream<List<BehaviorDefinitionModel>> watchDefinitions() {
+  Stream<List<BehaviorDefinitionModel>> watchDefinitions({String? patientId}) {
     try {
-      return supabaseClient
+      var builder = supabaseClient
           .from('behavior_definitions')
-          .stream(primaryKey: ['id'])
+          .stream(primaryKey: ['id']);
+      if (patientId != null) {
+        builder = builder.eq('patient_id', patientId);
+      }
+          
+      return builder
           .order('created_at', ascending: false)
           .map((data) => data
               .map((json) => BehaviorDefinitionModel.fromJson(json))

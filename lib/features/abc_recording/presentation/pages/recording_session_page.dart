@@ -55,7 +55,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Grabando: ${widget.definition.name}'),
+              title: Text('Registrando: ${widget.definition.name}'),
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -83,6 +83,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                     AbcFormWidget(
                       formKey: _formKey,
                       isLoading: state is AbcRecordingLoading,
+                      patientId: widget.definition.patientId ?? '',
                       onSave: () {
                         if (_formKey.currentState?.saveAndValidate() ?? false) {
                           final values = _formKey.currentState!.value;
@@ -109,6 +110,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                             recordingType: RecordingType.event,
                             observerId: userId,
                             timestamp: DateTime.now(),
+                            contextId: values['context_id'] as String?,
                           );
                           
                           context.read<AbcRecordingBloc>().add(SaveAbcRecord(record));

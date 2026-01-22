@@ -11,7 +11,8 @@ import '../bloc/behavior_definition_event.dart';
 import '../bloc/behavior_definition_state.dart';
 
 class BehaviorDefinitionFormPage extends StatefulWidget {
-  const BehaviorDefinitionFormPage({super.key});
+  final String? patientId;
+  const BehaviorDefinitionFormPage({super.key, this.patientId});
 
   @override
   State<BehaviorDefinitionFormPage> createState() => _BehaviorDefinitionFormPageState();
@@ -62,6 +63,7 @@ class _BehaviorDefinitionFormPageState extends State<BehaviorDefinitionFormPage>
                         hintText: 'ej. Agresión, Aleteo',
                         border: OutlineInputBorder(),
                       ),
+                      textCapitalization: TextCapitalization.sentences,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: 'Requerido'),
                         FormBuilderValidators.minLength(3, errorText: 'Mínimo 3 caracteres'),
@@ -143,6 +145,7 @@ class _BehaviorDefinitionFormPageState extends State<BehaviorDefinitionFormPage>
                                   isObservable: values['is_observable'] ?? false,
                                   isMeasurable: values['is_measurable'] ?? false,
                                   dimensions: List<String>.from(values['dimensions'] ?? []),
+                                  patientId: widget.patientId,
                                   createdBy: userId,
                                   createdAt: DateTime.now(),
                                   updatedAt: DateTime.now(),

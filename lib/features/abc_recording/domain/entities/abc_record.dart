@@ -14,6 +14,7 @@ class AbcRecord extends Equatable {
   final String? sessionId;
   final String observerId;
   final DateTime timestamp;
+  final String? contextId; // REPLACES location string ultimately, but keeping both for migration if needed
   final String? location;
   final String? notes;
 
@@ -27,6 +28,7 @@ class AbcRecord extends Equatable {
     this.sessionId,
     required this.observerId,
     required this.timestamp,
+    this.contextId,
     this.location,
     this.notes,
   });
@@ -42,6 +44,7 @@ class AbcRecord extends Equatable {
         sessionId,
         observerId,
         timestamp,
+        contextId,
         location,
         notes,
       ];

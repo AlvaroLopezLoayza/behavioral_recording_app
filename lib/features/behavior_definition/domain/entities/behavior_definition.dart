@@ -10,6 +10,7 @@ class BehaviorDefinition extends Equatable {
   final bool isObservable;
   final bool isMeasurable;
   final List<String> dimensions;
+  final String? patientId;
   final String createdBy;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -21,6 +22,7 @@ class BehaviorDefinition extends Equatable {
     required this.isObservable,
     required this.isMeasurable,
     required this.dimensions,
+    this.patientId,
     required this.createdBy,
     required this.createdAt,
     required this.updatedAt,
@@ -37,6 +39,8 @@ class BehaviorDefinition extends Equatable {
         isObservable,
         isMeasurable,
         dimensions,
+        dimensions,
+        patientId,
         createdBy,
         createdAt,
         updatedAt,

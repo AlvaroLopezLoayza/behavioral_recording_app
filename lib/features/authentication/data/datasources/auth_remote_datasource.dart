@@ -37,6 +37,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await supabaseClient.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: 'io.supabase.senda://login-callback',
       );
       if (response.user == null) throw ServerException('User creation failed');
       return UserModel.fromSupabase(response.user!);

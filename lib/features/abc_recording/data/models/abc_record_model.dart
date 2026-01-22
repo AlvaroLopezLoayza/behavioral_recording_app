@@ -12,6 +12,7 @@ class AbcRecordModel extends AbcRecord {
     super.sessionId,
     required super.observerId,
     required super.timestamp,
+    super.contextId,
     super.location,
     super.notes,
   });
@@ -27,6 +28,7 @@ class AbcRecordModel extends AbcRecord {
       sessionId: json['session_id'] as String?,
       observerId: json['observer_id'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
+      contextId: json['context_id'] as String?,
       location: json['location'] as String?,
       notes: json['notes'] as String?,
     );
@@ -43,6 +45,7 @@ class AbcRecordModel extends AbcRecord {
       'session_id': sessionId,
       'observer_id': observerId,
       'timestamp': timestamp.toIso8601String(),
+      'context_id': contextId,
       'location': location,
       'notes': notes,
     };
@@ -59,6 +62,7 @@ class AbcRecordModel extends AbcRecord {
       sessionId: entity.sessionId,
       observerId: entity.observerId,
       timestamp: entity.timestamp,
+      contextId: entity.contextId,
       location: entity.location,
       notes: entity.notes,
     );
@@ -75,6 +79,7 @@ class AbcRecordModel extends AbcRecord {
       sessionId: sessionId,
       observerId: observerId,
       timestamp: timestamp,
+      contextId: contextId,
       location: location,
       notes: notes,
     );

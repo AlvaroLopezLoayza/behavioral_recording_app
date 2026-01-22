@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
-import 'features/behavior_definition/presentation/pages/behavior_definition_list_page.dart';
+import 'features/patient/presentation/pages/patient_list_page.dart';
 import 'features/authentication/presentation/bloc/auth_bloc.dart';
 import 'features/authentication/presentation/bloc/auth_event.dart';
 import 'features/authentication/presentation/bloc/auth_state.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is Authenticated) {
-              return const BehaviorDefinitionListPage();
+              return const PatientListPage();
             } else if (state is AuthInitial) {
               // Show splash only on initial startup check
               return const Scaffold(

@@ -9,7 +9,13 @@ abstract class BehaviorDefinitionEvent extends Equatable {
 }
 
 /// Event to load all behavior definitions
-class LoadBehaviorDefinitions extends BehaviorDefinitionEvent {}
+class LoadBehaviorDefinitions extends BehaviorDefinitionEvent {
+  final String? patientId;
+  const LoadBehaviorDefinitions({this.patientId});
+  
+  @override
+  List<Object?> get props => [patientId];
+}
 
 /// Event to create a new behavior definition
 class CreateBehaviorDefinitionEvent extends BehaviorDefinitionEvent {

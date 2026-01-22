@@ -32,9 +32,9 @@ class BehaviorDefinitionRepositoryImpl implements BehaviorDefinitionRepository {
   }
 
   @override
-  Future<Either<Failure, List<BehaviorDefinition>>> getAllDefinitions() async {
+  Future<Either<Failure, List<BehaviorDefinition>>> getAllDefinitions({String? patientId}) async {
     try {
-      final models = await remoteDataSource.getDefinitions();
+      final models = await remoteDataSource.getDefinitions(patientId: patientId);
       final entities = models.map((model) => model.toEntity()).toList();
       return Right(entities);
     } on ServerException catch (e) {

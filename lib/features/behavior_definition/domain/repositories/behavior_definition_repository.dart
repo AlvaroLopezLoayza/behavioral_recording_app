@@ -12,7 +12,7 @@ abstract class BehaviorDefinitionRepository {
   );
 
   /// Retrieve all behavior definitions for the current user
-  Future<Either<Failure, List<BehaviorDefinition>>> getAllDefinitions();
+  Future<Either<Failure, List<BehaviorDefinition>>> getAllDefinitions({String? patientId});
 
   /// Get a specific behavior definition by ID
   Future<Either<Failure, BehaviorDefinition>> getDefinitionById(String id);

@@ -7,14 +7,17 @@ import '../bloc/behavior_definition_state.dart';
 import '../../../../features/abc_recording/presentation/pages/recording_session_page.dart';
 import '../../../../features/analysis/presentation/pages/analysis_page.dart';
 import 'behavior_definition_form_page.dart';
+import '../../../../features/authentication/presentation/bloc/auth_bloc.dart';
+import '../../../../features/authentication/presentation/bloc/auth_event.dart';
 
 class BehaviorDefinitionListPage extends StatelessWidget {
-  const BehaviorDefinitionListPage({super.key});
+  final String? patientId;
+  const BehaviorDefinitionListPage({super.key, this.patientId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<BehaviorDefinitionBloc>()..add(LoadBehaviorDefinitions()),
+      create: (_) => sl<BehaviorDefinitionBloc>()..add(LoadBehaviorDefinitions(patientId: patientId)),
       child: Scaffold(
         body: BlocBuilder<BehaviorDefinitionBloc, BehaviorDefinitionState>(
           builder: (context, state) {
@@ -40,6 +43,12 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                         onPressed: () {},
                         icon: const Icon(Icons.sort_rounded),
                         tooltip: 'Ordenar'),
+                    IconButton(
+                        onPressed: () {
+                          context.read<AuthBloc>().add(SignOutEvent());
+                        },
+                        icon: const Icon(Icons.logout_rounded),
+                        tooltip: 'Cerrar Sesión'),
                     const SizedBox(width: 8),
                   ],
                 ),
@@ -92,12 +101,12 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const BehaviorDefinitionFormPage(),
+                    builder: (context) => BehaviorDefinitionFormPage(patientId: patientId),
                   ),
                 );
                 
                 if (result == true && context.mounted) {
-                  context.read<BehaviorDefinitionBloc>().add(LoadBehaviorDefinitions());
+                  context.read<BehaviorDefinitionBloc>().add(LoadBehaviorDefinitions(patientId: patientId));
                 }
               },
               label: const Text('Nuevo'),
@@ -151,7 +160,7 @@ class _BehaviorCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Event', // Placeholder for recording type
+                      'Evento', // Placeholder for recording type
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onTertiary,
@@ -201,7 +210,7 @@ class _BehaviorCard extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.analytics_outlined, size: 18),
-                  label: const Text('View Analysis'),
+                  label: const Text('Ver Análisis'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.tertiary,
                     side: BorderSide(color: Theme.of(context).colorScheme.tertiary),

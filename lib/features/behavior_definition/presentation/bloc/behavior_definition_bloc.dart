@@ -23,7 +23,7 @@ class BehaviorDefinitionBloc extends Bloc<BehaviorDefinitionEvent, BehaviorDefin
     Emitter<BehaviorDefinitionState> emit,
   ) async {
     emit(BehaviorDefinitionLoading());
-    final result = await getBehaviorDefinitions(NoParams());
+    final result = await getBehaviorDefinitions(GetBehaviorDefinitionsParams(patientId: event.patientId));
     result.fold(
       (failure) => emit(BehaviorDefinitionError(failure.message)),
       (definitions) => emit(BehaviorDefinitionLoaded(definitions)),
@@ -48,7 +48,7 @@ class BehaviorDefinitionBloc extends Bloc<BehaviorDefinitionEvent, BehaviorDefin
       (_) {
         emit(BehaviorDefinitionCreated());
         // Reload definitions after successful creation
-        add(LoadBehaviorDefinitions());
+        add(const LoadBehaviorDefinitions());
       },
     );
   }

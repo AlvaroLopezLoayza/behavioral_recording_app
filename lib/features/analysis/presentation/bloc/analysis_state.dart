@@ -1,5 +1,4 @@
-import 'package:equatable/equatable.dart';
-import '../../domain/entities/trend_analysis.dart';
+import '../../domain/entities/conditional_probability.dart';
 
 abstract class AnalysisState extends Equatable {
   const AnalysisState();
@@ -10,10 +9,16 @@ abstract class AnalysisState extends Equatable {
 class AnalysisInitial extends AnalysisState {}
 class AnalysisLoading extends AnalysisState {}
 class AnalysisLoaded extends AnalysisState {
-  final TrendAnalysis data;
-  const AnalysisLoaded(this.data);
+  final TrendAnalysis? trendData;
+  final ConditionalProbabilityResult? probabilityData;
+
+  const AnalysisLoaded({
+    this.trendData,
+    this.probabilityData,
+  });
+
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [trendData, probabilityData];
 }
 class AnalysisError extends AnalysisState {
   final String message;
