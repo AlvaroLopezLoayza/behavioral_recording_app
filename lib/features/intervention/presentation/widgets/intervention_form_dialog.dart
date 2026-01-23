@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../main.dart';
 import '../../domain/entities/intervention_plan.dart';
 import '../../domain/entities/intervention_strategy.dart';
+import 'intervention_utils.dart';
 
 class InterventionFormDialog extends StatefulWidget {
   final String hypothesisId;
@@ -30,7 +31,10 @@ class _InterventionFormDialogState extends State<InterventionFormDialog> {
   @override
   void initState() {
     super.initState();
-    _strategies = widget.initialPlan?.strategies ?? [];
+    // Create a mutable copy of the list
+    _strategies = widget.initialPlan != null 
+        ? List.from(widget.initialPlan!.strategies)
+        : [];
   }
 
   void _addStrategy() {
@@ -88,21 +92,44 @@ class _InterventionFormDialogState extends State<InterventionFormDialog> {
                 ),
                 const Divider(),
                 if (_strategies.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text('No hay estrategias añadidas aún.',
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!)
+                    ),
+                    child: const Text('No hay estrategias añadidas aún.\nPulsa + para agregar.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
                   ),
                 ..._strategies.asMap().entries.map((entry) {
                   final index = entry.key;
                   final strategy = entry.value;
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(strategy.name),
-                    subtitle: Text('${strategy.type.name.toUpperCase()}: ${strategy.description}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () => _removeStrategy(index),
+                  return Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey[300]!)
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      leading: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: getStrategyColor(strategy.type).withOpacity(0.2),
+                        child: Text(strategy.type.displayName[0].toUpperCase(), 
+                          style: TextStyle(fontSize: 10, color: getStrategyColor(strategy.type), fontWeight: FontWeight.bold)
+                        ),
+                      ),
+                      title: Text(strategy.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      subtitle: Text(strategy.description, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.grey, size: 18),
+                        onPressed: () => _removeStrategy(index),
+                        splashRadius: 20,
+                      ),
                     ),
                   );
                 }),
@@ -114,7 +141,7 @@ class _InterventionFormDialogState extends State<InterventionFormDialog> {
                   items: InterventionStatus.values
                       .map((e) => DropdownMenuItem(
                             value: e,
-                            child: Text(e.name.toUpperCase()),
+                            child: Text(e.displayName),
                           ))
                       .toList(),
                 ),
@@ -182,7 +209,7 @@ class _StrategyDialogState extends State<StrategyDialog> {
               items: InterventionStrategyType.values
                   .map((e) => DropdownMenuItem(
                         value: e,
-                        child: Text(e.name.toUpperCase()),
+                        child: Text(e.displayName),
                       ))
                   .toList(),
             ),

@@ -123,18 +123,23 @@ class HypothesisListWidget extends StatelessWidget {
 
   Widget _buildStatusChip(HypothesisStatus status) {
     Color color;
+    String label;
     switch (status) {
       case HypothesisStatus.draft:
         color = Colors.grey;
+        label = 'BORRADOR';
         break;
       case HypothesisStatus.active:
         color = Colors.blue;
+        label = 'ACTIVA';
         break;
       case HypothesisStatus.disproven:
         color = Colors.red;
+        label = 'REFUTADA';
         break;
       case HypothesisStatus.verified:
         color = Colors.green;
+        label = 'VERIFICADA';
         break;
     }
     return Container(
@@ -145,7 +150,7 @@ class HypothesisListWidget extends StatelessWidget {
         border: Border.all(color: color),
       ),
       child: Text(
-        status.name.toUpperCase(),
+        label,
         style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );

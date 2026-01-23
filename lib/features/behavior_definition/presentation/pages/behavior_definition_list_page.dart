@@ -93,8 +93,8 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.verified_user_outlined),
-                          tooltip: 'Reliability / IOA',
+                          icon: const Icon(Icons.handshake_outlined),
+                          tooltip: 'Fiabilidad / IOA',
                         ),
                       IconButton(
                           onPressed: () {

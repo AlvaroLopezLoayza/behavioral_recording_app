@@ -24,18 +24,22 @@ class ContextListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<ContextBloc>()..add(LoadContexts(patientId)),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Paso 1: Contextos y Ambientes'),
-        ),
-        body: ContextListView(
-          patientId: patientId,
-          isSelectionMode: isSelectionMode,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showAddContextDialog(context, patientId),
-          child: const Icon(Icons.add),
-        ),
+      child: Builder(
+        builder: (innerContext) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Paso 1: Contextos y Ambientes'),
+            ),
+            body: ContextListView(
+              patientId: patientId,
+              isSelectionMode: isSelectionMode,
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _showAddContextDialog(innerContext, patientId),
+              child: const Icon(Icons.add),
+            ),
+          );
+        }
       ),
     );
   }
