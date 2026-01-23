@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../injection_container.dart';
-import '../../../../main.dart'; 
+import '../../../../main.dart';
 import '../../../behavior_definition/domain/entities/behavior_definition.dart';
 import '../../../workflow/presentation/bloc/workflow_bloc.dart';
 import '../../../workflow/presentation/bloc/workflow_event.dart';
@@ -15,7 +14,6 @@ import '../../domain/entities/behavior_occurrence.dart';
 import '../../domain/entities/recording_session.dart';
 import '../bloc/abc_recording_bloc.dart';
 import '../bloc/abc_recording_event.dart';
-import '../bloc/abc_recording_state.dart';
 import '../widgets/abc_form_widget.dart';
 import '../widgets/active_recorder_widget.dart';
 import '../widgets/event_stream_list_widget.dart';
@@ -259,15 +257,21 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                       child: ElevatedButton.icon(
                         onPressed: () {
                            // Finish Session
+                           final session = RecordingSession(
+                             id: _uuid.v4(),
+                             patientId: widget.definition.patientId ?? '',
+                             startTime: _sessionStartTime,
+                             endTime: DateTime.now(),
+                             behaviorDefinitionId: widget.definition.id,
+                             observerId: supabase.auth.currentUser?.id,
+                           );
+
+                           context.read<AbcRecordingBloc>().add(
+                             SaveRecordingSession(session)
+                           );
+
                            context.read<WorkflowBloc>().add(
-                             WorkflowSessionCompleted(
-                               RecordingSession(
-                                 id: _uuid.v4(),
-                                 patientId: widget.definition.patientId ?? '',
-                                 startTime: _sessionStartTime,
-                                 endTime: DateTime.now(),
-                               )
-                             )
+                             WorkflowSessionCompleted(session)
                            );
                            WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (context.mounted) Navigator.pop(context);

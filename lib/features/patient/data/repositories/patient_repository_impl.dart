@@ -73,8 +73,13 @@ class PatientRepositoryImpl implements PatientRepository {
 
   @override
   Future<Either<Failure, Patient>> updatePatient(Patient patient) async {
-    // Implement update logic in datasource
-     return Left(ServerFailure("Not implemented"));
+    try {
+      final model = PatientModel.fromEntity(patient);
+      final result = await remoteDataSource.updatePatient(model);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
   }
   
   @override

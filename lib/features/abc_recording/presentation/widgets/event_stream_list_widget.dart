@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/entities/abc_record.dart';
 
 class EventStreamListWidget extends StatelessWidget {
   final List<AbcRecord> records;
-  final Function(AbcRecord) onTap;
-  final Function(AbcRecord) onDelete;
+  final void Function(AbcRecord)? onTap;
+  final void Function(AbcRecord)? onDelete;
 
   const EventStreamListWidget({
     super.key,
     required this.records,
-    required this.onTap,
-    required this.onDelete,
+    this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -41,49 +42,55 @@ class EventStreamListWidget extends StatelessWidget {
         final bool isComplete = record.antecedent['description'] != null && 
                                 record.consequence['description'] != null;
 
-        return Dismissible(
-          key: Key(record.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
+        Widget item = Card(
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.grey.withOpacity(0.1)),
           ),
-          onDismissed: (_) => onDelete(record),
-          child: Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            onTap: onTap != null ? () => onTap!(record) : null,
+            leading: CircleAvatar(
+              backgroundColor: isComplete ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+              child: Icon(
+                isComplete ? Icons.check : Icons.edit_note,
+                size: 20,
+                color: isComplete ? Colors.green : Colors.orange,
+              ),
             ),
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              onTap: () => onTap(record),
-              leading: CircleAvatar(
-                backgroundColor: isComplete ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
-                child: Icon(
-                  isComplete ? Icons.check : Icons.edit_note,
-                  size: 20,
-                  color: isComplete ? Colors.green : Colors.orange,
-                ),
-              ),
-              title: Text(
-                _formatTime(record.timestamp),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                isComplete ? 'Registro completo' : 'Toca para agregar detalles',
-                style: TextStyle(
-                  color: isComplete ? Colors.grey : Colors.orange,
-                  fontSize: 12,
-                ),
-              ),
-              trailing: const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
+            title: Text(
+              _formatTime(record.timestamp),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+            subtitle: Text(
+              isComplete ? 'Registro completo' : 'Incompleto',
+              style: TextStyle(
+                color: isComplete ? Colors.grey : Colors.orange,
+                fontSize: 12,
+              ),
+            ),
+            trailing: onTap != null ? const Icon(Icons.chevron_right, size: 20, color: Colors.grey) : null,
           ),
         );
+
+        if (onDelete != null) {
+          return Dismissible(
+            key: Key(record.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (_) => onDelete!(record),
+            child: item,
+          );
+        }
+
+        return item;
       },
     );
   }

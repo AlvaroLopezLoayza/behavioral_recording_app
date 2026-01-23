@@ -4,12 +4,15 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../../../injection_container.dart';
+import '../../domain/entities/patient.dart';
 import '../bloc/patient_bloc.dart';
 import '../bloc/patient_event.dart';
 import '../bloc/patient_state.dart';
 
 class PatientFormPage extends StatefulWidget {
-  const PatientFormPage({super.key});
+  final Patient? patient;
+
+  const PatientFormPage({super.key, this.patient});
 
   @override
   State<PatientFormPage> createState() => _PatientFormPageState();
@@ -17,6 +20,8 @@ class PatientFormPage extends StatefulWidget {
 
 class _PatientFormPageState extends State<PatientFormPage> {
   final _formKey = GlobalKey<FormBuilderState>();
+
+  bool get isEditing => widget.patient != null;
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +43,20 @@ class _PatientFormPageState extends State<PatientFormPage> {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Nuevo Paciente'),
+              title: Text(isEditing ? 'Editar Paciente' : 'Nuevo Paciente'),
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: FormBuilder(
                 key: _formKey,
+                initialValue: isEditing
+                    ? {
+                        'firstName': widget.patient!.firstName,
+                        'lastName': widget.patient!.lastName,
+                        'birthDate': widget.patient!.birthDate,
+                        'diagnosis': widget.patient!.diagnosis,
+                      }
+                    : {},
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -71,7 +84,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'Apellidos',
                         border: OutlineInputBorder(),
-                         prefixIcon: Icon(Icons.person_outline),
+                        prefixIcon: Icon(Icons.person_outline),
                       ),
                       textCapitalization: TextCapitalization.words,
                       validator: FormBuilderValidators.compose([
@@ -96,7 +109,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'Diagnóstico (Opcional)',
                         border: OutlineInputBorder(),
-                         prefixIcon: Icon(Icons.medical_services_outlined),
+                        prefixIcon: Icon(Icons.medical_services_outlined),
                       ),
                       textCapitalization: TextCapitalization.sentences,
                     ),
@@ -107,14 +120,26 @@ class _PatientFormPageState extends State<PatientFormPage> {
                           : () {
                               if (_formKey.currentState?.saveAndValidate() ?? false) {
                                 final values = _formKey.currentState!.value;
-                                context.read<PatientBloc>().add(
-                                  CreatePatientEvent(
-                                    firstName: values['firstName'],
-                                    lastName: values['lastName'],
-                                    birthDate: values['birthDate'],
-                                    diagnosis: values['diagnosis'],
-                                  ),
-                                );
+                                if (isEditing) {
+                                  context.read<PatientBloc>().add(
+                                    UpdatePatientEvent(
+                                      id: widget.patient!.id,
+                                      firstName: values['firstName'],
+                                      lastName: values['lastName'],
+                                      birthDate: values['birthDate'],
+                                      diagnosis: values['diagnosis'],
+                                    ),
+                                  );
+                                } else {
+                                  context.read<PatientBloc>().add(
+                                    CreatePatientEvent(
+                                      firstName: values['firstName'],
+                                      lastName: values['lastName'],
+                                      birthDate: values['birthDate'],
+                                      diagnosis: values['diagnosis'],
+                                    ),
+                                  );
+                                }
                               }
                             },
                       style: ElevatedButton.styleFrom(
@@ -126,7 +151,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
                               width: 20,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
-                          : const Text('Guardar Paciente'),
+                          : Text(isEditing ? 'Actualizar Paciente' : 'Guardar Paciente'),
                     ),
                   ],
                 ),

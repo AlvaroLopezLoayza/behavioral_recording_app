@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../features/behavior_definition/presentation/pages/behavior_definition_list_page.dart';
 import '../../../../features/patient/presentation/pages/patient_workflow_dashboard.dart';
 import '../../../../injection_container.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
@@ -191,16 +189,50 @@ class _PatientCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton( // Settings/Access button
-                  icon: const Icon(Icons.settings, color: Colors.grey),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PatientAccessPage(patient: patient),
-                      ),
-                    );
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onSelected: (value) async {
+                    if (value == 'edit') {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PatientFormPage(patient: patient),
+                        ),
+                      );
+                      if (result == true && context.mounted) {
+                        context.read<PatientBloc>().add(LoadPatients());
+                      }
+                    } else if (value == 'share') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PatientAccessPage(patient: patient),
+                        ),
+                      );
+                    }
                   },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 20),
+                          SizedBox(width: 8),
+                          Text('Editar'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'share',
+                      child: Row(
+                        children: [
+                          Icon(Icons.share, size: 20),
+                          SizedBox(width: 8),
+                          Text('Compartir'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Icon(Icons.chevron_right, color: Colors.grey[400]),
               ],

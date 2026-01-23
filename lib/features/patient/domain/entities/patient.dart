@@ -23,6 +23,28 @@ class Patient extends Equatable {
 
   String get fullName => '$firstName $lastName';
 
+  Patient copyWith({
+    String? id,
+    String? firstName,
+    String? lastName,
+    DateTime? birthDate,
+    String? diagnosis,
+    String? ownerId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Patient(
+      id: id ?? this.id,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      birthDate: birthDate ?? this.birthDate,
+      diagnosis: diagnosis ?? this.diagnosis,
+      ownerId: ownerId ?? this.ownerId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

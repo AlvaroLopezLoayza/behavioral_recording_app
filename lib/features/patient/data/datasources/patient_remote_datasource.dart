@@ -7,6 +7,7 @@ import '../models/patient_model.dart';
 
 abstract class PatientRemoteDataSource {
   Future<PatientModel> createPatient(PatientModel patient);
+  Future<PatientModel> updatePatient(PatientModel patient);
   Future<List<PatientModel>> getPatients();
   Future<PatientModel> getPatientById(String id);
   Future<List<PatientAccessModel>> getPatientAccesses(String patientId);
@@ -118,6 +119,21 @@ class PatientRemoteDataSourceImpl implements PatientRemoteDataSource {
       if (e is ServerException) rethrow; // Pass simplified exceptions up
       // Handle generic "functions.execute" error if RPC fails
       throw ServerException("Error al compartir: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<PatientModel> updatePatient(PatientModel patient) async {
+    try {
+      final response = await supabaseClient
+          .from('patients')
+          .update(patient.toJson())
+          .eq('id', patient.id)
+          .select()
+          .single();
+      return PatientModel.fromJson(response);
+    } catch (e) {
+      throw ServerException(e.toString());
     }
   }
 

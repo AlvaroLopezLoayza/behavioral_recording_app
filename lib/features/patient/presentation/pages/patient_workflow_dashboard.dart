@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../../domain/entities/patient.dart';
-import '../../../workflow/presentation/bloc/workflow_bloc.dart';
-import '../../../workflow/presentation/bloc/workflow_event.dart';
-import '../../../workflow/presentation/bloc/workflow_state.dart';
-
+import '../../../abc_recording/presentation/pages/recording_session_page.dart';
+import '../../../abc_recording/presentation/pages/session_history_page.dart';
+import '../../../analysis/presentation/pages/analysis_page.dart';
 // Workflow Pages
 import '../../../behavior_definition/presentation/pages/behavior_definition_list_page.dart';
 import '../../../context/presentation/pages/context_list_page.dart';
-import '../../../abc_recording/presentation/pages/recording_session_page.dart';
-import '../../../analysis/presentation/pages/analysis_page.dart';
+import '../../../workflow/presentation/bloc/workflow_bloc.dart';
+import '../../../workflow/presentation/bloc/workflow_event.dart';
+import '../../../workflow/presentation/bloc/workflow_state.dart';
+import '../../domain/entities/patient.dart';
+import 'patient_form_page.dart';
 
 class PatientWorkflowDashboard extends StatefulWidget {
   final Patient patient;
@@ -384,9 +384,13 @@ class _PatientWorkflowDashboardState extends State<PatientWorkflowDashboard> {
           subtitle: 'Ver registros anteriores',
           icon: Icons.history,
           onTap: () {
-             // TODO: Implement History Page
-             ScaffoldMessenger.of(context).showSnackBar(
-               const SnackBar(content: Text('Historial próximamente')),
+             Navigator.push(
+               context,
+               MaterialPageRoute(
+                 builder: (context) => SessionHistoryPage(
+                   patientId: widget.patient.id,
+                 ),
+               ),
              );
           },
         ),
@@ -396,7 +400,14 @@ class _PatientWorkflowDashboardState extends State<PatientWorkflowDashboard> {
             subtitle: 'Editar datos personales',
             icon: Icons.settings_outlined,
             onTap: () {
-                // Settings nav 
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PatientFormPage(
+                      patient: widget.patient,
+                    ),
+                  ),
+                );
             },
         ),
       ],

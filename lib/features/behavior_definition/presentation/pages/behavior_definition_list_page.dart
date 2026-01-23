@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../features/abc_recording/presentation/pages/recording_session_page.dart';
 import '../../../../features/analysis/presentation/pages/analysis_page.dart';
@@ -9,12 +8,12 @@ import '../../../../features/authentication/presentation/bloc/auth_event.dart';
 import '../../../../features/patient/domain/usecases/get_patient_by_id.dart';
 import '../../../../features/reliability/presentation/pages/reliability_page.dart';
 import '../../../../injection_container.dart';
+import '../../../workflow/presentation/bloc/workflow_bloc.dart';
+import '../../../workflow/presentation/bloc/workflow_event.dart';
 import '../bloc/behavior_definition_bloc.dart';
 import '../bloc/behavior_definition_event.dart';
 import '../bloc/behavior_definition_state.dart';
 import 'behavior_definition_form_page.dart';
-import '../../../workflow/presentation/bloc/workflow_bloc.dart';
-import '../../../workflow/presentation/bloc/workflow_event.dart';
 
 enum BehaviorListMode {
   management, // Edit definitions

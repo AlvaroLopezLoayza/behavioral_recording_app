@@ -2,11 +2,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../models/abc_record_model.dart';
+import '../models/recording_session_model.dart';
 
 abstract class AbcRecordingRemoteDataSource {
   Future<AbcRecordModel> createAbcRecord(AbcRecordModel model);
   Future<List<AbcRecordModel>> getRecordsByBehavior(String behaviorDefinitionId);
   Future<List<AbcRecordModel>> getRecordsBySession(String sessionId);
+  Future<List<RecordingSessionModel>> getSessionsByPatient(String patientId);
+  Future<RecordingSessionModel> createRecordingSession(RecordingSessionModel model);
   Future<void> deleteRecord(String id);
 }
 
@@ -67,6 +70,42 @@ class AbcRecordingRemoteDataSourceImpl implements AbcRecordingRemoteDataSource {
       throw ServerException(e.message, e.code);
     } catch (e) {
       throw ServerException('Failed to fetch session records');
+    }
+  }
+
+  @override
+  Future<List<RecordingSessionModel>> getSessionsByPatient(String patientId) async {
+    try {
+      final response = await supabaseClient
+          .from('recording_sessions')
+          .select()
+          .eq('patient_id', patientId)
+          .order('start_time', ascending: false);
+      
+      return (response as List)
+          .map((json) => RecordingSessionModel.fromJson(json))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message, e.code);
+    } catch (e) {
+      throw ServerException('Failed to fetch sessions');
+    }
+  }
+
+  @override
+  Future<RecordingSessionModel> createRecordingSession(RecordingSessionModel model) async {
+    try {
+      final response = await supabaseClient
+          .from('recording_sessions')
+          .insert(model.toJson())
+          .select()
+          .single();
+      
+      return RecordingSessionModel.fromJson(response);
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message, e.code);
+    } catch (e) {
+      throw ServerException('Failed to create recording session');
     }
   }
 

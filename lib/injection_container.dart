@@ -6,6 +6,7 @@ import 'features/abc_recording/data/datasources/abc_recording_remote_datasource.
 import 'features/abc_recording/data/repositories/abc_recording_repository_impl.dart';
 import 'features/abc_recording/domain/repositories/abc_recording_repository.dart';
 import 'features/abc_recording/domain/usecases/create_abc_record.dart';
+import 'features/abc_recording/domain/usecases/create_recording_session.dart';
 import 'features/abc_recording/domain/usecases/get_records_by_behavior.dart';
 import 'features/abc_recording/presentation/bloc/abc_recording_bloc.dart';
 // Analysis Feature
@@ -56,7 +57,6 @@ import 'features/reliability/domain/usecases/calculate_ioa.dart';
 import 'features/reliability/domain/usecases/get_reliability_records.dart';
 import 'features/reliability/domain/usecases/save_reliability_record.dart';
 import 'features/reliability/presentation/bloc/reliability_bloc.dart';
-import 'features/reliability/presentation/bloc/reliability_bloc.dart';
 // Workflow Feature
 import 'features/workflow/presentation/bloc/workflow_bloc.dart';
 final sl = GetIt.instance;
@@ -105,6 +105,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetBehaviorDefinitions(sl()));
   
   sl.registerLazySingleton(() => CreateAbcRecord(sl()));
+  sl.registerLazySingleton(() => CreateRecordingSession(sl()));
   sl.registerLazySingleton(() => GetRecordsByBehavior(sl()));
   
   sl.registerLazySingleton(() => GetBehaviorTrend(sl(), sl()));
@@ -127,6 +128,7 @@ Future<void> initializeDependencies() async {
     () => AbcRecordingBloc(
       createAbcRecord: sl(),
       getRecordsByBehavior: sl(),
+      createRecordingSession: sl(),
     ),
   );
   

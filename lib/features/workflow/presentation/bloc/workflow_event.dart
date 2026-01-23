@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
+
+import '../../../../features/abc_recording/domain/entities/recording_session.dart';
 import '../../../../features/behavior_definition/domain/entities/behavior_definition.dart';
 import '../../../../features/context/domain/entities/clinical_context.dart';
 import '../../../../features/patient/domain/entities/patient.dart';
-import '../../../../features/abc_recording/domain/entities/recording_session.dart';
 
 abstract class WorkflowEvent extends Equatable {
   const WorkflowEvent();

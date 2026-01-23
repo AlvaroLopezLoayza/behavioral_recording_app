@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/abc_record.dart';
+import '../../domain/entities/recording_session.dart';
 
 abstract class AbcRecordingEvent extends Equatable {
   const AbcRecordingEvent();
@@ -23,6 +24,14 @@ class SaveAbcRecord extends AbcRecordingEvent {
   const SaveAbcRecord(this.record);
   @override
   List<Object?> get props => [record];
+}
+
+/// Save a recording session
+class SaveRecordingSession extends AbcRecordingEvent {
+  final RecordingSession session;
+  const SaveRecordingSession(this.session);
+  @override
+  List<Object?> get props => [session];
 }
 
 /// Delete a record

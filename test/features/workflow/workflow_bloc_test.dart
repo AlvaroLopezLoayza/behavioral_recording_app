@@ -1,12 +1,12 @@
-import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:behavioral_recording_app/features/abc_recording/domain/entities/recording_session.dart';
+import 'package:behavioral_recording_app/features/behavior_definition/domain/entities/behavior_definition.dart';
+import 'package:behavioral_recording_app/features/context/domain/entities/clinical_context.dart';
+import 'package:behavioral_recording_app/features/patient/domain/entities/patient.dart';
 import 'package:behavioral_recording_app/features/workflow/presentation/bloc/workflow_bloc.dart';
 import 'package:behavioral_recording_app/features/workflow/presentation/bloc/workflow_event.dart';
 import 'package:behavioral_recording_app/features/workflow/presentation/bloc/workflow_state.dart';
-import 'package:behavioral_recording_app/features/patient/domain/entities/patient.dart';
-import 'package:behavioral_recording_app/features/behavior_definition/domain/entities/behavior_definition.dart';
-import 'package:behavioral_recording_app/features/context/domain/entities/clinical_context.dart';
-import 'package:behavioral_recording_app/features/abc_recording/domain/entities/recording_session.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // Mocks
 class MockPatient extends Patient {
