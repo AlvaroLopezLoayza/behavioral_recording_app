@@ -7,11 +7,18 @@ import '../../../../injection_container.dart';
 import '../bloc/context_bloc.dart';
 import '../bloc/context_event.dart';
 import '../bloc/context_state.dart';
+import '../../../workflow/presentation/bloc/workflow_bloc.dart';
+import '../../../workflow/presentation/bloc/workflow_event.dart';
 
 class ContextListPage extends StatelessWidget {
   final String patientId;
+  final bool isSelectionMode;
 
-  const ContextListPage({super.key, required this.patientId});
+  const ContextListPage({
+    super.key, 
+    required this.patientId,
+    this.isSelectionMode = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +26,12 @@ class ContextListPage extends StatelessWidget {
       create: (_) => sl<ContextBloc>()..add(LoadContexts(patientId)),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Contextos y Ambientes'),
+          title: const Text('Paso 1: Contextos y Ambientes'),
         ),
-        body: const ContextListView(),
+        body: ContextListView(
+          patientId: patientId,
+          isSelectionMode: isSelectionMode,
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddContextDialog(context, patientId),
           child: const Icon(Icons.add),
@@ -45,7 +55,14 @@ class ContextListPage extends StatelessWidget {
 }
 
 class ContextListView extends StatelessWidget {
-  const ContextListView({super.key});
+  final String patientId;
+  final bool isSelectionMode;
+  
+  const ContextListView({
+    super.key, 
+    required this.patientId,
+    required this.isSelectionMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +91,7 @@ class ContextListView extends StatelessWidget {
           }
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<ContextBloc>().add(LoadContexts(patientId: patientId));
+              context.read<ContextBloc>().add(LoadContexts(patientId));
               await Future.delayed(const Duration(milliseconds: 500));
             },
             child: ListView.separated(
@@ -88,6 +105,14 @@ class ContextListView extends StatelessWidget {
                     leading: const CircleAvatar(child: Icon(Icons.place)),
                     title: Text(item.name),
                     subtitle: Text(item.type + (item.description.isNotEmpty ? ' - ${item.description}' : '')),
+                    onTap: () {
+                      if (isSelectionMode) {
+                        context.read<WorkflowBloc>().add(WorkflowContextSelected(item));
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (context.mounted) Navigator.pop(context);
+                        });
+                      }
+                    },
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       onPressed: () {

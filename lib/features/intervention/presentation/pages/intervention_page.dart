@@ -22,7 +22,7 @@ class InterventionPage extends StatelessWidget {
       create: (_) => sl<InterventionBloc>(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Plan de Intervención (BIP)'),
+          title: const Text('Paso 6: Plan de Intervención (BIP)'),
         ),
         body: Column(
           children: [

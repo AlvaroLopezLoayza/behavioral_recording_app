@@ -76,10 +76,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   // Branding
                   Text(
                     'Senda',
-                    style: GoogleFonts.dmSerifDisplay(
-                      fontSize: 42,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(

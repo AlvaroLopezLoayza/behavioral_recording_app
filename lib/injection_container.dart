@@ -56,8 +56,9 @@ import 'features/reliability/domain/usecases/calculate_ioa.dart';
 import 'features/reliability/domain/usecases/get_reliability_records.dart';
 import 'features/reliability/domain/usecases/save_reliability_record.dart';
 import 'features/reliability/presentation/bloc/reliability_bloc.dart';
-
-
+import 'features/reliability/presentation/bloc/reliability_bloc.dart';
+// Workflow Feature
+import 'features/workflow/presentation/bloc/workflow_bloc.dart';
 final sl = GetIt.instance;
 
 /// Initialize all dependencies
@@ -226,5 +227,9 @@ Future<void> initializeDependencies() async {
       getReliabilityRecords: sl(),
       saveReliabilityRecord: sl(),
     ),
+  );
+
+  sl.registerFactory(
+    () => WorkflowBloc(),
   );
 }

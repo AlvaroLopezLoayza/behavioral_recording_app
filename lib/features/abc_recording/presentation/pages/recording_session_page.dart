@@ -1,245 +1,289 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../injection_container.dart';
-import '../../../../main.dart'; // To access global supabase client
+import '../../../../main.dart'; 
 import '../../../behavior_definition/domain/entities/behavior_definition.dart';
+import '../../../workflow/presentation/bloc/workflow_bloc.dart';
+import '../../../workflow/presentation/bloc/workflow_event.dart';
+import '../../../workflow/presentation/bloc/workflow_state.dart';
 import '../../domain/entities/abc_record.dart';
 import '../../domain/entities/behavior_occurrence.dart';
+import '../../domain/entities/recording_session.dart';
 import '../bloc/abc_recording_bloc.dart';
 import '../bloc/abc_recording_event.dart';
 import '../bloc/abc_recording_state.dart';
 import '../widgets/abc_form_widget.dart';
-import '../widgets/duration_recording_widget.dart';
-import '../widgets/event_counter_widget.dart';
-import '../widgets/interval_recording_widget.dart';
+import '../widgets/active_recorder_widget.dart';
+import '../widgets/event_stream_list_widget.dart';
+import '../widgets/session_timer_widget.dart';
 
 class RecordingSessionPage extends StatefulWidget {
   final BehaviorDefinition definition;
 
-  const RecordingSessionPage({
-    super.key,
-    required this.definition,
-  });
+  const RecordingSessionPage({super.key, required this.definition});
 
   @override
   State<RecordingSessionPage> createState() => _RecordingSessionPageState();
 }
 
 class _RecordingSessionPageState extends State<RecordingSessionPage> {
-  final _formKey = GlobalKey<FormBuilderState>();
-  int _sessionCount = 0;
   final _uuid = const Uuid();
-  bool _showForm = false;
-  RecordingType _selectedType = RecordingType.event;
-  BehaviorOccurrence? _pendingOccurrence;
-
+  List<AbcRecord> _sessionRecords = [];
+  late DateTime _sessionStartTime;
+  
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AbcRecordingBloc>()..add(LoadAbcRecords(widget.definition.id)),
-      child: BlocConsumer<AbcRecordingBloc, AbcRecordingState>(
-        listener: (context, state) {
-          if (state is AbcRecordSaved) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Registro guardado exitosamente')),
-            );
-            _formKey.currentState?.reset();
-            setState(() {
-              _showForm = false;
-              _pendingOccurrence = null;
-            });
-          } else if (state is AbcRecordingError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
-            );
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Registrando: ${widget.definition.name}'),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Mode Selector
-                  Center(
-                    child: SegmentedButton<RecordingType>(
-                      segments: const [
-                        ButtonSegment(value: RecordingType.event, label: Text('Evento'), icon: Icon(Icons.touch_app)),
-                        ButtonSegment(value: RecordingType.continuous, label: Text('Duración'), icon: Icon(Icons.timer)),
-                        ButtonSegment(value: RecordingType.interval, label: Text('Intervalo'), icon: Icon(Icons.grid_on)),
-                      ],
-                      selected: {_selectedType},
-                      onSelectionChanged: (set) {
-                        setState(() {
-                          _selectedType = set.first;
-                          _showForm = false;
-                          _pendingOccurrence = null;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+  void initState() {
+    super.initState();
+    _sessionStartTime = DateTime.now();
+  }
 
-                  // Active Tool
-                  if (!_showForm) ...[
-                    if (_selectedType == RecordingType.event)
-                      EventCounterWidget(
-                        label: widget.definition.operationalDefinition,
-                        count: _sessionCount,
-                        onIncrement: () {
-                          setState(() {
-                            _sessionCount++;
-                            _pendingOccurrence = BehaviorOccurrence(startTime: DateTime.now());
-                            _showForm = true;
-                          });
-                        },
-                        onDecrement: _sessionCount > 0 
-                            ? () => setState(() => _sessionCount--) 
-                            : null,
-                      ),
-                    if (_selectedType == RecordingType.continuous)
-                      DurationRecordingWidget(
-                        label: widget.definition.operationalDefinition,
-                        onStop: (start, end, duration) {
-                          setState(() {
-                             _pendingOccurrence = BehaviorOccurrence(
-                               startTime: start,
-                               endTime: end,
-                               duration: duration,
-                             );
-                             _showForm = true;
-                          });
-                        },
-                      ),
-                    if (_selectedType == RecordingType.interval)
-                      IntervalRecordingWidget(
-                        label: widget.definition.operationalDefinition,
-                        onComplete: (intervals, length) {
-                          setState(() {
-                            _pendingOccurrence = BehaviorOccurrence(
-                              startTime: DateTime.now(), // Group timestamp
-                              notes: 'Intervalos activos: ${intervals.join(', ')} ($length s c/u)',
-                            );
-                            _showForm = true;
-                          });
-                        },
-                      ),
-                  ],
-                  
-                  if (_showForm) ...[
-                    const SizedBox(height: 16),
-                    Column(
-                      children: [
-                        const Divider(),
-                        if (_selectedType == RecordingType.continuous)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Chip(
-                              label: Text('Duración capturada: ${_pendingOccurrence?.duration?.inSeconds}s'),
-                              avatar: const Icon(Icons.timer_outlined),
-                            ),
-                          ),
-                        if (_selectedType == RecordingType.interval)
-                           const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Chip(
-                              label: Text('Registro de Intervalos listo'),
-                              avatar: Icon(Icons.grid_on),
-                            ),
-                          ),
-                      ],
-                    ),
-                    AbcFormWidget(
-                      formKey: _formKey,
-                      isLoading: state is AbcRecordingLoading,
-                      patientId: widget.definition.patientId ?? '',
-                      onSave: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final values = _formKey.currentState!.value;
-                          
-                          final userId = supabase.auth.currentUser?.id;
-                          if (userId == null) return;
+  void _onLogEvent() {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return;
+    
+    // Get current context from workflow state to tag the record
+    final currentContext = context.read<WorkflowBloc>().state.context;
 
-                          final record = AbcRecord(
-                            id: _uuid.v4(),
-                            behaviorDefinitionId: widget.definition.id,
-                            antecedent: {'description': values['antecedent_description']},
-                            consequence: {'description': values['consequence_description']},
-                            behaviorOccurrence: BehaviorOccurrence(
-                              startTime: _pendingOccurrence?.startTime ?? DateTime.now(),
-                              endTime: _pendingOccurrence?.endTime,
-                              duration: _pendingOccurrence?.duration,
-                              intensity: (values['intensity'] as double?)?.toInt(),
-                              notes: _pendingOccurrence?.notes, // Carry over interval info if exists
-                            ),
-                            recordingType: _selectedType,
-                            observerId: userId,
-                            timestamp: DateTime.now(),
-                            contextId: values['context_id'] as String?,
-                          );
-                          
-                          context.read<AbcRecordingBloc>().add(SaveAbcRecord(record));
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => setState(() => _showForm = false),
-                      child: const Text('Cancelar / Volver'),
-                    ),
-                  ],
-                  
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Registros Recientes',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  if (state is AbcRecordingLoaded)
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: state.records.length,
-                      itemBuilder: (context, index) {
-                        final record = state.records[index];
-                        return Card(
-                          child: ListTile(
-                            leading: Icon(_getIconForType(record.recordingType)),
-                            title: Text('A: ${record.antecedent['description']}'),
-                            subtitle: Text('C: ${record.consequence['description']}'),
-                            trailing: Text(
-                              '${record.timestamp.hour}:${record.timestamp.minute.toString().padLeft(2, '0')}',
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  else if (state is AbcRecordingLoading && !_showForm)
-                    const Center(child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: CircularProgressIndicator(),
-                    ))
-                ],
-              ),
-            ),
-          );
-        },
+    // Create optimistic record
+    final newRecord = AbcRecord(
+      id: _uuid.v4(),
+      behaviorDefinitionId: widget.definition.id,
+      antecedent: const {}, // Empty initially
+      consequence: const {}, // Empty initially
+      behaviorOccurrence: BehaviorOccurrence(startTime: DateTime.now()),
+      recordingType: RecordingType.event,
+      observerId: userId,
+      timestamp: DateTime.now(),
+      contextId: currentContext?.id, 
+    );
+
+    setState(() {
+      _sessionRecords.insert(0, newRecord); // Add to top of stream
+    });
+
+    // Save to backend
+    context.read<AbcRecordingBloc>().add(SaveAbcRecord(newRecord));
+  }
+  
+  void _onDeleteRecord(AbcRecord record) {
+    // TODO: Implement actual delete in Bloc provider
+    setState(() {
+      _sessionRecords.removeWhere((r) => r.id == record.id);
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Registro eliminado'),
+        action: SnackBarAction(label: 'Deshacer', onPressed: () {
+           // Basic undo logic for UX demo
+           setState(() => _sessionRecords.insert(0, record));
+        }),
       ),
     );
   }
 
-  IconData _getIconForType(RecordingType type) {
-    switch (type) {
-      case RecordingType.event: return Icons.touch_app;
-      case RecordingType.continuous: return Icons.timer;
-      case RecordingType.interval: return Icons.grid_on;
-    }
+  void _showDetailSheet(AbcRecord record) {
+     showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Detalles del Evento',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
+            const Divider(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: AbcFormWidget(
+                  formKey: GlobalKey<FormBuilderState>(),
+                  patientId: widget.definition.patientId ?? '',
+                  initialContextId: record.contextId,
+                  onSave: () {
+                     // Update record logic would go here
+                     Navigator.pop(context);
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(content: Text('Detalles actualizados')),
+                     );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Use BlocListener to sync initial load if needed, but for "Session" 
+    // we might start empty or only show records from *this* session.
+    // usage of BlocProvider here is to keep access to the bloc.
+    return BlocProvider.value(
+      value: sl<AbcRecordingBloc>(),
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: SafeArea(
+          child: Column(
+            children: [
+              // HUD
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                         Text(
+                          widget.definition.name.toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            fontSize: 12,
+                          ),
+                         ),
+                         const SizedBox(height: 4),
+                         BlocBuilder<WorkflowBloc, WorkflowState>(
+                           builder: (context, state) {
+                              return Row(
+                                children: [
+                                  const Icon(Icons.place, size: 16, color: Colors.blueGrey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    state.context?.name ?? 'Sin Contexto',
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              );
+                           },
+                         ),
+                      ],
+                    ),
+                    SessionTimerWidget(startTime: _sessionStartTime),
+                  ],
+                ),
+              ),
+              
+              // Active Zone
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: ActiveRecorderWidget(
+                    type: RecordingType.event, // Dynamic later
+                    label: widget.definition.operationalDefinition,
+                    onLogEvent: _onLogEvent,
+                  ),
+                ),
+              ),
+              
+              const Divider(height: 1),
+              
+              // Stream Zone
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Actividad Reciente',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${_sessionRecords.length} eventos',
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  color: Colors.grey[100],
+                  child: EventStreamListWidget(
+                    records: _sessionRecords,
+                    onTap: _showDetailSheet,
+                    onDelete: _onDeleteRecord,
+                  ),
+                ),
+              ),
+              
+              // Footer Actions
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                           // Cancel / Discard
+                           WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (context.mounted) Navigator.pop(context);
+                           });
+                        },
+                        child: const Text('Descartar'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                           // Finish Session
+                           context.read<WorkflowBloc>().add(
+                             WorkflowSessionCompleted(
+                               RecordingSession(
+                                 id: _uuid.v4(),
+                                 patientId: widget.definition.patientId ?? '',
+                                 startTime: _sessionStartTime,
+                                 endTime: DateTime.now(),
+                               )
+                             )
+                           );
+                           WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (context.mounted) Navigator.pop(context);
+                           });
+                        },
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: const Text('Finalizar Sesión'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

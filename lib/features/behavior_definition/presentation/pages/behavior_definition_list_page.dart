@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../features/abc_recording/presentation/pages/recording_session_page.dart';
 import '../../../../features/analysis/presentation/pages/analysis_page.dart';
@@ -12,10 +13,35 @@ import '../bloc/behavior_definition_bloc.dart';
 import '../bloc/behavior_definition_event.dart';
 import '../bloc/behavior_definition_state.dart';
 import 'behavior_definition_form_page.dart';
+import '../../../workflow/presentation/bloc/workflow_bloc.dart';
+import '../../../workflow/presentation/bloc/workflow_event.dart';
+
+enum BehaviorListMode {
+  management, // Edit definitions
+  recording,  // Select for recording
+  analysis    // Select for analysis
+}
 
 class BehaviorDefinitionListPage extends StatelessWidget {
   final String? patientId;
-  const BehaviorDefinitionListPage({super.key, this.patientId});
+  final BehaviorListMode mode;
+  
+  const BehaviorDefinitionListPage({
+    super.key, 
+    this.patientId,
+    this.mode = BehaviorListMode.management,
+  });
+
+  String get _title {
+    switch (mode) {
+      case BehaviorListMode.management:
+        return 'Paso 2: Comportamientos';
+      case BehaviorListMode.recording:
+        return 'Seleccionar para Registrar';
+      case BehaviorListMode.analysis:
+        return 'Seleccionar para Analizar';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +63,9 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                     pinned: true,
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(
-                        'Comportamientos',
+                        _title,
                         style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       centerTitle: false,
@@ -51,7 +76,7 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                           onPressed: () {},
                           icon: const Icon(Icons.sort_rounded),
                           tooltip: 'Ordenar'),
-                      if (patientId != null)
+                      if (patientId != null && mode == BehaviorListMode.management)
                         IconButton(
                           onPressed: () async {
                             final getPatient = sl<GetPatientById>();
@@ -111,7 +136,10 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                               final definition = state.definitions[index];
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
-                                child: _BehaviorCard(definition: definition),
+                                child: _BehaviorCard(
+                                  definition: definition,
+                                  mode: mode,
+                                ),
                               );
                             },
                             childCount: state.definitions.length,
@@ -123,26 +151,28 @@ class BehaviorDefinitionListPage extends StatelessWidget {
             );
           },
         ),
-        floatingActionButton: Builder(
-          builder: (context) {
-            return FloatingActionButton.extended(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BehaviorDefinitionFormPage(patientId: patientId),
-                  ),
+        floatingActionButton: mode == BehaviorListMode.management 
+          ? Builder(
+              builder: (context) {
+                return FloatingActionButton.extended(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BehaviorDefinitionFormPage(patientId: patientId),
+                      ),
+                    );
+                    
+                    if (result == true && context.mounted) {
+                      context.read<BehaviorDefinitionBloc>().add(LoadBehaviorDefinitions(patientId: patientId));
+                    }
+                  },
+                  label: const Text('Nuevo'),
+                  icon: const Icon(Icons.add),
                 );
-                
-                if (result == true && context.mounted) {
-                  context.read<BehaviorDefinitionBloc>().add(LoadBehaviorDefinitions(patientId: patientId));
-                }
               },
-              label: const Text('Nuevo'),
-              icon: const Icon(Icons.add),
-            );
-          },
-        ),
+            )
+          : null,
       ),
     );
   }
@@ -150,8 +180,12 @@ class BehaviorDefinitionListPage extends StatelessWidget {
 
 class _BehaviorCard extends StatelessWidget {
   final dynamic definition; // Typing as dynamic to simplify for now, should be BehaviorDefinition
+  final BehaviorListMode mode;
 
-  const _BehaviorCard({required this.definition});
+  const _BehaviorCard({
+    required this.definition,
+    required this.mode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -179,14 +213,40 @@ class _BehaviorCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecordingSessionPage(
-                  definition: definition,
+            // Dismiss keyboard if active
+            FocusScope.of(context).unfocus();
+            
+            if (mode == BehaviorListMode.management) {
+               // Management mode: View details / Edit (Future impl)
+               // For now, same as Recording session just to have navigation
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecordingSessionPage(
+                    definition: definition,
+                  ),
                 ),
-              ),
-            );
+              );
+            } else if (mode == BehaviorListMode.recording) {
+              // Workflow Selection
+              context.read<WorkflowBloc>().add(
+                WorkflowBehaviorSelected(definition)
+              );
+              // Delay pop to ensure clean unmounting and state propagation
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) Navigator.pop(context);
+              });
+            } else if (mode == BehaviorListMode.analysis) {
+               // Direct navigation to analysis
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AnalysisPage(
+                    definition: definition,
+                  ),
+                ),
+              );
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -261,47 +321,60 @@ class _BehaviorCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.play_arrow_rounded, 
+                        _getActionIconForMode(mode), 
                         color: Theme.of(context).colorScheme.primary,
                         size: 20,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AnalysisPage(
-                            definition: definition,
+                if (mode == BehaviorListMode.management) ...[
+                   const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AnalysisPage(
+                                definition: definition,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.analytics_rounded, size: 20),
+                        label: const Text('Análisis Longitudinal'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          foregroundColor: Theme.of(context).colorScheme.tertiary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(color: Theme.of(context).colorScheme.tertiary.withAlpha(100)),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.analytics_rounded, size: 20),
-                    label: const Text('Análisis Longitudinal'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      foregroundColor: Theme.of(context).colorScheme.tertiary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: Theme.of(context).colorScheme.tertiary.withAlpha(100)),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                  ),
-                ),
+                ]
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  IconData _getActionIconForMode(BehaviorListMode mode) {
+    switch (mode) {
+      case BehaviorListMode.management:
+        return Icons.edit_outlined;
+      case BehaviorListMode.recording:
+        return Icons.play_arrow_rounded;
+      case BehaviorListMode.analysis:
+        return Icons.analytics_outlined;
+    }
   }
 
   Widget _buildFeatureTag(BuildContext context, IconData icon, String label, Color color) {

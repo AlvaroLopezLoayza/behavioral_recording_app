@@ -9,6 +9,7 @@ import 'features/authentication/presentation/bloc/auth_event.dart';
 import 'features/authentication/presentation/bloc/auth_state.dart';
 import 'features/authentication/presentation/pages/login_page.dart';
 import 'features/patient/presentation/pages/patient_list_page.dart';
+import 'features/workflow/presentation/bloc/workflow_bloc.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -37,8 +38,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<AuthBloc>()..add(CheckAuthStatus()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (_) => di.sl<AuthBloc>()..add(CheckAuthStatus()),
+        ),
+        BlocProvider<WorkflowBloc>(
+          create: (_) => di.sl<WorkflowBloc>(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Behavioral Recording',
         debugShowCheckedModeBanner: false,

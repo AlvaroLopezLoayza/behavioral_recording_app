@@ -38,31 +38,49 @@ class AppTheme {
       
       // Typography
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.playfairDisplay(
+        // Branding / Hero
+        displayLarge: GoogleFonts.dmSerifDisplay(
+          fontSize: 42,
+          fontWeight: FontWeight.bold,
+          color: deepBlue,
+        ),
+        // Major Page Titles
+        displayMedium: GoogleFonts.dmSerifDisplay(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: deepBlue,
         ),
-        displayMedium: GoogleFonts.playfairDisplay(
+        // Section Headers / Secondary Page Titles
+        displaySmall: GoogleFonts.dmSerifDisplay(
           fontSize: 28,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
           color: deepBlue,
         ),
-        titleLarge: GoogleFonts.playfairDisplay(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+        // Card Titles / Modal Headers
+        headlineMedium: GoogleFonts.dmSerifDisplay(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
           color: deepBlue,
         ),
-        titleMedium: GoogleFonts.lato(
+        // Subsections
+        titleLarge: GoogleFonts.dmSerifDisplay(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: deepBlue,
+        ),
+        // Input Labels / List Items
+        titleMedium: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: deepBlue,
         ),
-        bodyLarge: GoogleFonts.lato(
+        // Standard Text
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           color: deepBlue,
         ),
-        bodyMedium: GoogleFonts.lato(
+        // Secondary Text
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           color: deepBlue.withAlpha(200),
         ),
@@ -83,7 +101,7 @@ class AppTheme {
         backgroundColor: cream,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.playfairDisplay(
+        titleTextStyle: GoogleFonts.dmSerifDisplay(
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: deepBlue,
@@ -100,7 +118,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          textStyle: GoogleFonts.lato(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -132,12 +150,12 @@ class AppTheme {
           borderSide: const BorderSide(color: terracotta, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        labelStyle: GoogleFonts.lato(color: deepBlue.withAlpha(150)),
+        labelStyle: GoogleFonts.inter(color: deepBlue.withAlpha(150)),
       ),
       
       snackBarTheme: SnackBarThemeData(
         backgroundColor: deepBlue,
-        contentTextStyle: GoogleFonts.lato(color: cream),
+        contentTextStyle: GoogleFonts.inter(color: cream),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -150,8 +168,8 @@ class AppTheme {
         selectedColor: sage,
         secondarySelectedColor: terracotta,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        labelStyle: GoogleFonts.lato(color: deepBlue, fontWeight: FontWeight.bold),
-        secondaryLabelStyle: GoogleFonts.lato(color: Colors.white),
+        labelStyle: GoogleFonts.inter(color: deepBlue, fontWeight: FontWeight.bold),
+        secondaryLabelStyle: GoogleFonts.inter(color: Colors.white),
         brightness: Brightness.light,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

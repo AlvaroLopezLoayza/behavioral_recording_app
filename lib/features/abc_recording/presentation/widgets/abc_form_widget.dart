@@ -9,6 +9,7 @@ class AbcFormWidget extends StatelessWidget {
   final VoidCallback onSave;
   final bool isLoading;
   final String patientId;
+  final String? initialContextId;
 
   const AbcFormWidget({
     super.key,
@@ -16,12 +17,16 @@ class AbcFormWidget extends StatelessWidget {
     required this.onSave,
     this.isLoading = false,
     required this.patientId,
+    this.initialContextId,
   });
 
   @override
   Widget build(BuildContext context) {
     return FormBuilder(
       key: formKey,
+      initialValue: {
+        if (initialContextId != null) 'context_id': initialContextId,
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

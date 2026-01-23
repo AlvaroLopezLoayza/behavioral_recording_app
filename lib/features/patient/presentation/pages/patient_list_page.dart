@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../features/behavior_definition/presentation/pages/behavior_definition_list_page.dart';
+import '../../../../features/patient/presentation/pages/patient_workflow_dashboard.dart';
 import '../../../../injection_container.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_event.dart';
@@ -27,11 +28,7 @@ class PatientListPage extends StatelessWidget {
           elevation: 0,
           title: Text(
             'Mis Pacientes',
-            style: GoogleFonts.dmSerifDisplay(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.displaySmall,
           ),
           actions: [
              IconButton(
@@ -143,11 +140,11 @@ class _PatientCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         child: InkWell(
           onTap: () {
-            // Navigate to patient's behavior list
+            // Navigate to patient's workflow dashboard
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BehaviorDefinitionListPage(patientId: patient.id), 
+                builder: (context) => PatientWorkflowDashboard(patient: patient), 
               ),
             );
           },

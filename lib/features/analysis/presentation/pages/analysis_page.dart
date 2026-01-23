@@ -76,7 +76,7 @@ class AnalysisPage extends StatelessWidget {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Análisis'),
+            title: const Text('Paso 4: Análisis'),
             actions: [
               BlocBuilder<AnalysisBloc, AnalysisState>(
                 builder: (context, state) {

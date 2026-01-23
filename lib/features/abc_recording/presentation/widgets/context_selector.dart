@@ -36,18 +36,22 @@ class ContextSelector extends StatelessWidget {
             // Optionally handle error visually
           }
 
+          if (isLoading) {
+            return const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (items.isEmpty) {
+             return const Text('No hay contextos disponibles');
+          }
+
           return FormBuilderDropdown<String>(
             name: name,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Contexto / Ambiente',
-              prefixIcon: const Icon(Icons.place),
-              suffix: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
+              prefixIcon: Icon(Icons.place),
             ),
             validator: FormBuilderValidators.required(errorText: 'Selecciona un contexto'),
             items: items.map((c) => DropdownMenuItem(
