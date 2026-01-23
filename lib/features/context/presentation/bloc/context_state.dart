@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/context.dart';
+import '../../domain/entities/clinical_context.dart';
 
 abstract class ContextState extends Equatable {
   const ContextState();
@@ -13,7 +13,7 @@ class ContextInitial extends ContextState {}
 class ContextLoading extends ContextState {}
 
 class ContextLoaded extends ContextState {
-  final List<Context> contexts;
+  final List<ClinicalContext> contexts;
 
   const ContextLoaded(this.contexts);
 

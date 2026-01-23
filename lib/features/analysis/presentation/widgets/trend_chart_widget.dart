@@ -99,6 +99,53 @@ class TrendChartWidget extends StatelessWidget {
                     ),
                     gridData: const FlGridData(show: false),
                     borderData: FlBorderData(show: false),
+                    extraLinesData: ExtraLinesData(
+                      verticalLines: data.phaseChanges.map((change) {
+                        // Find the closest index for this date
+                        double x = -1;
+                        for (int i = 0; i < data.dataPoints.length; i++) {
+                          if (data.dataPoints[i].date.year == change.date.year &&
+                              data.dataPoints[i].date.month == change.date.month &&
+                              data.dataPoints[i].date.day == change.date.day) {
+                            x = i.toDouble();
+                            break;
+                          }
+                          // If it's between points, we could interpolate, but for bar chart, 
+                          // matching the day is usually what's expected.
+                        }
+                        
+                        // If no exact match found but it's within range, find the insertion point
+                        if (x == -1 && data.dataPoints.isNotEmpty) {
+                           if (change.date.isAfter(data.dataPoints.first.date) && 
+                               change.date.isBefore(data.dataPoints.last.date)) {
+                             for (int i = 0; i < data.dataPoints.length - 1; i++) {
+                               if (change.date.isAfter(data.dataPoints[i].date) && 
+                                   change.date.isBefore(data.dataPoints[i+1].date)) {
+                                 x = i + 0.5;
+                                 break;
+                               }
+                             }
+                           }
+                        }
+
+                        return VerticalLine(
+                          x: x,
+                          color: change.newStatus == 'active' ? Colors.green : Colors.orange,
+                          strokeWidth: 2,
+                          dashArray: [5, 5],
+                          label: VerticalLineLabel(
+                            show: true,
+                            alignment: Alignment.topRight,
+                            style: TextStyle(
+                              color: change.newStatus == 'active' ? Colors.green : Colors.orange,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                            labelResolver: (line) => change.newStatus.toUpperCase(),
+                          ),
+                        );
+                      }).where((line) => line.x != -1).toList(),
+                    ),
                     barGroups: data.dataPoints.asMap().entries.map((e) {
                       final index = e.key;
                       final point = e.value;

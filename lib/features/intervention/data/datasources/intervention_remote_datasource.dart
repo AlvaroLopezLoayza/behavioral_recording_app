@@ -6,6 +6,7 @@ abstract class InterventionRemoteDataSource {
   Future<InterventionPlanModel> createPlan(InterventionPlanModel plan);
   Future<InterventionPlanModel> updatePlan(InterventionPlanModel plan);
   Future<void> deletePlan(String planId);
+  Future<List<Map<String, dynamic>>> getPhaseChanges(String behaviorId);
 }
 
 class InterventionRemoteDataSourceImpl implements InterventionRemoteDataSource {
@@ -50,5 +51,16 @@ class InterventionRemoteDataSourceImpl implements InterventionRemoteDataSource {
   @override
   Future<void> deletePlan(String planId) async {
     await client.from('intervention_plans').delete().eq('id', planId);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPhaseChanges(String behaviorId) async {
+    final response = await client
+        .from('intervention_status_history')
+        .select('*, intervention_plans!inner(hypothesis_id, functional_hypotheses!inner(behavior_definition_id))')
+        .eq('intervention_plans.functional_hypotheses.behavior_definition_id', behaviorId)
+        .order('changed_at', ascending: true);
+    
+    return List<Map<String, dynamic>>.from(response);
   }
 }

@@ -9,6 +9,7 @@ class BehaviorOccurrence extends Equatable {
   final int? intensity; // Scale 1-5 usually
   final int? frequency;
   final String? topography;
+  final String? notes;
 
   const BehaviorOccurrence({
     required this.startTime,
@@ -18,6 +19,7 @@ class BehaviorOccurrence extends Equatable {
     this.intensity,
     this.frequency,
     this.topography,
+    this.notes,
   });
 
   @override
@@ -29,5 +31,6 @@ class BehaviorOccurrence extends Equatable {
         intensity,
         frequency,
         topography,
+        notes,
       ];
 }

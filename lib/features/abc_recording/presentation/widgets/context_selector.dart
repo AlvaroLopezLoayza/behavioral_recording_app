@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../../../../injection_container.dart';
-import '../../context/presentation/bloc/context_bloc.dart';
-import '../../context/presentation/bloc/context_event.dart';
-import '../../context/presentation/bloc/context_state.dart';
-import '../../context/domain/entities/context.dart';
+import '../../../context/presentation/bloc/context_bloc.dart';
+import '../../../context/presentation/bloc/context_event.dart';
+import '../../../context/presentation/bloc/context_state.dart';
+import '../../../context/domain/entities/clinical_context.dart';
 
 class ContextSelector extends StatelessWidget {
   final String patientId;
@@ -24,7 +24,7 @@ class ContextSelector extends StatelessWidget {
       create: (_) => sl<ContextBloc>()..add(LoadContexts(patientId)),
       child: BlocBuilder<ContextBloc, ContextState>(
         builder: (context, state) {
-          List<Context> items = [];
+          List<ClinicalContext> items = [];
           bool isLoading = true;
 
           if (state is ContextLoaded) {

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class Context extends Equatable {
+class ClinicalContext extends Equatable {
   final String id;
   final String patientId;
   final String name;
@@ -9,7 +9,7 @@ class Context extends Equatable {
   final String createdBy;
   final DateTime createdAt;
 
-  const Context({
+  const ClinicalContext({
     required this.id,
     required this.patientId,
     required this.name,

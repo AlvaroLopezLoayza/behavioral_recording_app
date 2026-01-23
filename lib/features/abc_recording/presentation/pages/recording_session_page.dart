@@ -11,6 +11,8 @@ import '../../domain/entities/behavior_occurrence.dart';
 import '../bloc/abc_recording_bloc.dart';
 import '../bloc/abc_recording_event.dart';
 import '../bloc/abc_recording_state.dart';
+import '../widgets/duration_recording_widget.dart';
+import '../widgets/interval_recording_widget.dart';
 import '../widgets/abc_form_widget.dart';
 import '../widgets/event_counter_widget.dart';
 
@@ -31,6 +33,8 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
   int _sessionCount = 0;
   final _uuid = const Uuid();
   bool _showForm = false;
+  RecordingType _selectedType = RecordingType.event;
+  BehaviorOccurrence? _pendingOccurrence;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +49,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
             _formKey.currentState?.reset();
             setState(() {
               _showForm = false;
+              _pendingOccurrence = null;
             });
           } else if (state is AbcRecordingError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -62,24 +67,95 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  EventCounterWidget(
-                    label: widget.definition.operationalDefinition,
-                    count: _sessionCount,
-                    onIncrement: () {
-                      setState(() {
-                        _sessionCount++;
-                        _showForm = true; // Show form on first count or every count?
-                      });
-                    },
-                    onDecrement: _sessionCount > 0 
-                        ? () => setState(() => _sessionCount--) 
-                        : null,
+                  // Mode Selector
+                  Center(
+                    child: SegmentedButton<RecordingType>(
+                      segments: const [
+                        ButtonSegment(value: RecordingType.event, label: Text('Evento'), icon: Icon(Icons.touch_app)),
+                        ButtonSegment(value: RecordingType.continuous, label: Text('Duración'), icon: Icon(Icons.timer)),
+                        ButtonSegment(value: RecordingType.interval, label: Text('Intervalo'), icon: Icon(Icons.grid_on)),
+                      ],
+                      selected: {_selectedType},
+                      onSelectionChanged: (set) {
+                        setState(() {
+                          _selectedType = set.first;
+                          _showForm = false;
+                          _pendingOccurrence = null;
+                        });
+                      },
+                    ),
                   ),
+                  const SizedBox(height: 24),
+
+                  // Active Tool
+                  if (!_showForm) ...[
+                    if (_selectedType == RecordingType.event)
+                      EventCounterWidget(
+                        label: widget.definition.operationalDefinition,
+                        count: _sessionCount,
+                        onIncrement: () {
+                          setState(() {
+                            _sessionCount++;
+                            _pendingOccurrence = BehaviorOccurrence(startTime: DateTime.now());
+                            _showForm = true;
+                          });
+                        },
+                        onDecrement: _sessionCount > 0 
+                            ? () => setState(() => _sessionCount--) 
+                            : null,
+                      ),
+                    if (_selectedType == RecordingType.continuous)
+                      DurationRecordingWidget(
+                        label: widget.definition.operationalDefinition,
+                        onStop: (start, end, duration) {
+                          setState(() {
+                             _pendingOccurrence = BehaviorOccurrence(
+                               startTime: start,
+                               endTime: end,
+                               duration: duration,
+                             );
+                             _showForm = true;
+                          });
+                        },
+                      ),
+                    if (_selectedType == RecordingType.interval)
+                      IntervalRecordingWidget(
+                        label: widget.definition.operationalDefinition,
+                        onComplete: (intervals, length) {
+                          setState(() {
+                            _pendingOccurrence = BehaviorOccurrence(
+                              startTime: DateTime.now(), // Group timestamp
+                              notes: 'Intervalos activos: ${intervals.join(', ')} ($length s c/u)',
+                            );
+                            _showForm = true;
+                          });
+                        },
+                      ),
+                  ],
                   
                   if (_showForm) ...[
-                    const SizedBox(height: 24),
-                    const Divider(),
                     const SizedBox(height: 16),
+                    Column(
+                      children: [
+                        const Divider(),
+                        if (_selectedType == RecordingType.continuous)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Chip(
+                              label: Text('Duración capturada: ${_pendingOccurrence?.duration?.inSeconds}s'),
+                              avatar: const Icon(Icons.timer_outlined),
+                            ),
+                          ),
+                        if (_selectedType == RecordingType.interval)
+                           const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Chip(
+                              label: Text('Registro de Intervalos listo'),
+                              avatar: Icon(Icons.grid_on),
+                            ),
+                          ),
+                      ],
+                    ),
                     AbcFormWidget(
                       formKey: _formKey,
                       isLoading: state is AbcRecordingLoading,
@@ -88,26 +164,22 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                         if (_formKey.currentState?.saveAndValidate() ?? false) {
                           final values = _formKey.currentState!.value;
                           
-                          final occurrence = BehaviorOccurrence(
-                             startTime: DateTime.now(), // Ideally capture when button was trapped
-                             intensity: (values['intensity'] as double?)?.toInt(),
-                          );
-                          
                           final userId = supabase.auth.currentUser?.id;
-                          if (userId == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Por favor inicia sesión')),
-                            );
-                            return;
-                          }
+                          if (userId == null) return;
 
                           final record = AbcRecord(
                             id: _uuid.v4(),
                             behaviorDefinitionId: widget.definition.id,
                             antecedent: {'description': values['antecedent_description']},
                             consequence: {'description': values['consequence_description']},
-                            behaviorOccurrence: occurrence,
-                            recordingType: RecordingType.event,
+                            behaviorOccurrence: BehaviorOccurrence(
+                              startTime: _pendingOccurrence?.startTime ?? DateTime.now(),
+                              endTime: _pendingOccurrence?.endTime,
+                              duration: _pendingOccurrence?.duration,
+                              intensity: (values['intensity'] as double?)?.toInt(),
+                              notes: _pendingOccurrence?.notes, // Carry over interval info if exists
+                            ),
+                            recordingType: _selectedType,
                             observerId: userId,
                             timestamp: DateTime.now(),
                             contextId: values['context_id'] as String?,
@@ -116,6 +188,11 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                           context.read<AbcRecordingBloc>().add(SaveAbcRecord(record));
                         }
                       },
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () => setState(() => _showForm = false),
+                      child: const Text('Cancelar / Volver'),
                     ),
                   ],
                   
@@ -134,6 +211,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                         final record = state.records[index];
                         return Card(
                           child: ListTile(
+                            leading: Icon(_getIconForType(record.recordingType)),
                             title: Text('A: ${record.antecedent['description']}'),
                             subtitle: Text('C: ${record.consequence['description']}'),
                             trailing: Text(
@@ -143,7 +221,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                         );
                       },
                     )
-                  else if (state is AbcRecordingLoading)
+                  else if (state is AbcRecordingLoading && !_showForm)
                     const Center(child: Padding(
                       padding: EdgeInsets.all(16.0),
                       child: CircularProgressIndicator(),
@@ -155,5 +233,13 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
         },
       ),
     );
+  }
+
+  IconData _getIconForType(RecordingType type) {
+    switch (type) {
+      case RecordingType.event: return Icons.touch_app;
+      case RecordingType.continuous: return Icons.timer;
+      case RecordingType.interval: return Icons.grid_on;
+    }
   }
 }

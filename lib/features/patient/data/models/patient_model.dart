@@ -2,15 +2,24 @@ import '../../domain/entities/patient.dart';
 
 class PatientModel extends Patient {
   const PatientModel({
-    required super.id,
-    required super.firstName,
-    required super.lastName,
-    super.birthDate,
-    super.diagnosis,
-    required super.ownerId,
-    required super.createdAt,
-    required super.updatedAt,
-  });
+    required String id,
+    required String firstName,
+    required String lastName,
+    DateTime? birthDate,
+    String? diagnosis,
+    required String ownerId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : super(
+          id: id,
+          firstName: firstName,
+          lastName: lastName,
+          birthDate: birthDate,
+          diagnosis: diagnosis,
+          ownerId: ownerId,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        );
 
   factory PatientModel.fromJson(Map<String, dynamic> json) {
     return PatientModel(

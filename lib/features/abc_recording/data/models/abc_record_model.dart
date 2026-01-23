@@ -3,19 +3,32 @@ import '../../domain/entities/behavior_occurrence.dart';
 
 class AbcRecordModel extends AbcRecord {
   const AbcRecordModel({
-    required super.id,
-    required super.behaviorDefinitionId,
-    required super.antecedent,
-    required super.behaviorOccurrence,
-    required super.consequence,
-    required super.recordingType,
-    super.sessionId,
-    required super.observerId,
-    required super.timestamp,
-    super.contextId,
-    super.location,
-    super.notes,
-  });
+    required String id,
+    required String behaviorDefinitionId,
+    required Map<String, dynamic> antecedent,
+    required BehaviorOccurrence behaviorOccurrence,
+    required Map<String, dynamic> consequence,
+    required RecordingType recordingType,
+    String? sessionId,
+    required String observerId,
+    required DateTime timestamp,
+    String? contextId,
+    String? location,
+    String? notes,
+  }) : super(
+          id: id,
+          behaviorDefinitionId: behaviorDefinitionId,
+          antecedent: antecedent,
+          behaviorOccurrence: behaviorOccurrence,
+          consequence: consequence,
+          recordingType: recordingType,
+          sessionId: sessionId,
+          observerId: observerId,
+          timestamp: timestamp,
+          contextId: contextId,
+          location: location,
+          notes: notes,
+        );
 
   factory AbcRecordModel.fromJson(Map<String, dynamic> json) {
     return AbcRecordModel(
@@ -98,6 +111,7 @@ class AbcRecordModel extends AbcRecord {
       intensity: json['intensity'],
       frequency: json['frequency'],
       topography: json['topography'],
+      notes: json['notes'],
     );
   }
 
@@ -110,6 +124,7 @@ class AbcRecordModel extends AbcRecord {
       'intensity': occurrence.intensity,
       'frequency': occurrence.frequency,
       'topography': occurrence.topography,
+      'notes': occurrence.notes,
     };
   }
 

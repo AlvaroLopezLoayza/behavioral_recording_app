@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/context.dart';
+import '../../domain/entities/clinical_context.dart';
 
 abstract class ContextEvent extends Equatable {
   const ContextEvent();

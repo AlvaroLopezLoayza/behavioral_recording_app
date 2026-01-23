@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../../../../injection_container.dart';
-import '../../domain/entities/context.dart';
+import '../../domain/entities/clinical_context.dart';
 import '../bloc/context_bloc.dart';
 import '../bloc/context_event.dart';
 import '../bloc/context_state.dart';

@@ -9,6 +9,9 @@ import '../../../../features/analysis/presentation/pages/analysis_page.dart';
 import 'behavior_definition_form_page.dart';
 import '../../../../features/authentication/presentation/bloc/auth_bloc.dart';
 import '../../../../features/authentication/presentation/bloc/auth_event.dart';
+import '../../../../features/reliability/presentation/pages/reliability_page.dart';
+import '../../../../features/patient/domain/usecases/get_patient_by_id.dart';
+import '../../../../features/patient/domain/entities/patient.dart';
 
 class BehaviorDefinitionListPage extends StatelessWidget {
   final String? patientId;
@@ -43,6 +46,26 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                         onPressed: () {},
                         icon: const Icon(Icons.sort_rounded),
                         tooltip: 'Ordenar'),
+                    if (patientId != null)
+                      IconButton(
+                        onPressed: () async {
+                          final getPatient = sl<GetPatientById>();
+                          final result = await getPatient(patientId!);
+                          result.fold(
+                            (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(failure.message)),
+                            ),
+                            (patient) => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReliabilityPage(patient: patient),
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.verified_user_outlined),
+                        tooltip: 'Reliability / IOA',
+                      ),
                     IconButton(
                         onPressed: () {
                           context.read<AuthBloc>().add(SignOutEvent());
@@ -126,101 +149,169 @@ class _BehaviorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RecordingSessionPage(
-                definition: definition,
-              ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      definition.name,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiary.withAlpha(100),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Evento', // Placeholder for recording type
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onTertiary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                definition.operationalDefinition,
-                style: Theme.of(context).textTheme.bodyMedium,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(Icons.visibility_outlined, 
-                    size: 16, 
-                    color: Theme.of(context).colorScheme.primary.withAlpha(150)
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Observable',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary.withAlpha(150),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.secondary),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AnalysisPage(
-                          definition: definition,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.analytics_outlined, size: 18),
-                  label: const Text('Ver Análisis'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.tertiary,
-                    side: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-                  ),
+    // Determine recording type color for the tag
+    final typeColor = Theme.of(context).colorScheme.tertiary;
+
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 500),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 30 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.grey.withAlpha(30)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecordingSessionPage(
+                  definition: definition,
                 ),
               ),
-            ],
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Hero(
+                        tag: 'behavior_name_${definition.id}',
+                        child: Text(
+                          definition.name,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: typeColor.withAlpha(30),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        'Evento', // Placeholder for recording type
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: typeColor,
+                              letterSpacing: 0.5,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  definition.operationalDefinition,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 20),
+                Divider(color: Colors.grey.withAlpha(30)),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildFeatureTag(
+                      context, 
+                      Icons.visibility_outlined, 
+                      'Observable',
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildFeatureTag(
+                      context, 
+                      Icons.straighten_outlined, 
+                      'Medible',
+                      Theme.of(context).colorScheme.secondary,
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withAlpha(20),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.play_arrow_rounded, 
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AnalysisPage(
+                            definition: definition,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.analytics_rounded, size: 20),
+                    label: const Text('Análisis Longitudinal'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      foregroundColor: Theme.of(context).colorScheme.tertiary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: Theme.of(context).colorScheme.tertiary.withAlpha(100)),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureTag(BuildContext context, IconData icon, String label, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color.withAlpha(200)),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: color.withAlpha(200),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

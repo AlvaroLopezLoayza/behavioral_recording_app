@@ -1,15 +1,23 @@
-import '../domain/entities/context.dart';
+import '../domain/entities/clinical_context.dart';
 
-class ContextModel extends Context {
+class ContextModel extends ClinicalContext {
   const ContextModel({
-    required super.id,
-    required super.patientId,
-    required super.name,
-    super.description,
-    super.type,
-    required super.createdBy,
-    required super.createdAt,
-  });
+    required String id,
+    required String patientId,
+    required String name,
+    String description = '',
+    String type = 'physical',
+    required String createdBy,
+    required DateTime createdAt,
+  }) : super(
+          id: id,
+          patientId: patientId,
+          name: name,
+          description: description,
+          type: type,
+          createdBy: createdBy,
+          createdAt: createdAt,
+        );
 
   factory ContextModel.fromJson(Map<String, dynamic> json) {
     return ContextModel(
@@ -34,7 +42,7 @@ class ContextModel extends Context {
     };
   }
 
-  factory ContextModel.fromEntity(Context context) {
+  factory ContextModel.fromEntity(ClinicalContext context) {
     return ContextModel(
       id: context.id,
       patientId: context.patientId,

@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import 'patient.dart';
 import 'patient_access.dart';
-import 'access_role.dart';
+import '../entities/access_role.dart';
 
 abstract class PatientRepository {
   // Patient CRUD

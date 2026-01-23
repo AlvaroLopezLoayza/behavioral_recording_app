@@ -3,16 +3,26 @@ import '../../domain/entities/function_type.dart';
 
 class FunctionalHypothesisModel extends FunctionalHypothesis {
   const FunctionalHypothesisModel({
-    required super.id,
-    required super.behaviorDefinitionId,
-    required super.functionType,
-    required super.description,
-    required super.confidence,
-    required super.status,
-    required super.createdBy,
-    required super.createdAt,
-    required super.updatedAt,
-  });
+    required String id,
+    required String behaviorDefinitionId,
+    required FunctionType functionType,
+    required String description,
+    required double confidence,
+    required HypothesisStatus status,
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : super(
+          id: id,
+          behaviorDefinitionId: behaviorDefinitionId,
+          functionType: functionType,
+          description: description,
+          confidence: confidence,
+          status: status,
+          createdBy: createdBy,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        );
 
   factory FunctionalHypothesisModel.fromJson(Map<String, dynamic> json) {
     return FunctionalHypothesisModel(

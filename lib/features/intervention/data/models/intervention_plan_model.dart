@@ -3,16 +3,26 @@ import 'intervention_strategy_model.dart';
 
 class InterventionPlanModel extends InterventionPlan {
   const InterventionPlanModel({
-    required super.id,
-    required super.hypothesisId,
-    required super.patientId,
-    required super.replacementBehavior,
-    required super.strategies,
-    required super.status,
-    required super.createdBy,
-    required super.createdAt,
-    required super.updatedAt,
-  });
+    required String id,
+    required String hypothesisId,
+    required String patientId,
+    required String replacementBehavior,
+    required List<InterventionStrategy> strategies,
+    required InterventionStatus status,
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : super(
+          id: id,
+          hypothesisId: hypothesisId,
+          patientId: patientId,
+          replacementBehavior: replacementBehavior,
+          strategies: strategies,
+          status: status,
+          createdBy: createdBy,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        );
 
   factory InterventionPlanModel.fromJson(Map<String, dynamic> json) {
     return InterventionPlanModel(

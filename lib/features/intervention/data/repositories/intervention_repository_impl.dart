@@ -4,6 +4,7 @@ import '../../../../core/error/failures.dart';
 import '../datasources/intervention_remote_datasource.dart';
 import '../models/intervention_plan_model.dart';
 import '../../domain/entities/intervention_plan.dart';
+import '../../domain/entities/phase_change.dart';
 import '../../domain/repositories/intervention_repository.dart';
 
 class InterventionRepositoryImpl implements InterventionRepository {
@@ -48,6 +49,23 @@ class InterventionRepositoryImpl implements InterventionRepository {
     try {
       await remoteDataSource.deletePlan(planId);
       return const Right(null);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PhaseChange>>> getPhaseChanges(String behaviorId) async {
+    try {
+      final history = await remoteDataSource.getPhaseChanges(behaviorId);
+      final changes = history.map((json) {
+        return PhaseChange(
+          date: DateTime.parse(json['changed_at']),
+          newStatus: json['new_status'],
+          planId: json['plan_id'],
+        );
+      }).toList();
+      return Right(changes);
     } on ServerException {
       return Left(ServerFailure());
     }

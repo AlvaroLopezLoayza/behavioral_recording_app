@@ -28,6 +28,14 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: cream,
       
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+      
       // Typography
       textTheme: TextTheme(
         displayLarge: GoogleFonts.playfairDisplay(
@@ -134,6 +142,18 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
         ),
         behavior: SnackBarBehavior.floating,
+      ),
+      
+      chipTheme: ChipThemeData(
+        backgroundColor: sage.withAlpha(30),
+        disabledColor: Colors.grey[200],
+        selectedColor: sage,
+        secondarySelectedColor: terracotta,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        labelStyle: GoogleFonts.lato(color: deepBlue, fontWeight: FontWeight.bold),
+        secondaryLabelStyle: GoogleFonts.lato(color: Colors.white),
+        brightness: Brightness.light,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

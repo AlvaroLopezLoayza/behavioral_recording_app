@@ -6,14 +6,57 @@ import '../bloc/analysis_bloc.dart';
 import '../bloc/analysis_event.dart';
 import '../bloc/analysis_state.dart';
 import '../widgets/trend_chart_widget.dart';
-import '../../hypothesis/presentation/bloc/hypothesis_bloc.dart';
-import '../../hypothesis/presentation/bloc/hypothesis_event.dart';
-import '../../hypothesis/presentation/widgets/hypothesis_list_widget.dart';
+import '../../../hypothesis/presentation/bloc/hypothesis_bloc.dart';
+import '../../../hypothesis/presentation/bloc/hypothesis_event.dart';
+import '../../../hypothesis/presentation/widgets/hypothesis_list_widget.dart';
+import '../../../../core/util/report_export_service.dart';
+import '../../domain/entities/trend_analysis.dart';
+import '../../domain/entities/conditional_probability.dart';
 
 class AnalysisPage extends StatelessWidget {
   final BehaviorDefinition definition;
 
   const AnalysisPage({super.key, required this.definition});
+
+  void _showExportOptions(BuildContext context, AnalysisLoaded state) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text('Exportar Resumen (PDF)'),
+              onTap: () {
+                Navigator.pop(context);
+                ReportExportService.exportAnalysisToPdf(
+                  patientName: 'Paciente',
+                  records: [], 
+                  antecedentProbabilities: {
+                    for (var p in state.probabilityData?.antecedentProbabilities ?? [])
+                      p.name: p.probability
+                  },
+                  consequenceProbabilities: {
+                    for (var p in state.probabilityData?.consequenceProbabilities ?? [])
+                      p.name: p.probability
+                  },
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: const Text('Exportar Datos Raw (CSV)'),
+              onTap: () {
+                Navigator.pop(context);
+                ReportExportService.exportAbcRecordsToCsv([], 'Paciente');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +76,19 @@ class AnalysisPage extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Análisis'),
+            actions: [
+              BlocBuilder<AnalysisBloc, AnalysisState>(
+                builder: (context, state) {
+                  if (state is AnalysisLoaded) {
+                    return IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () => _showExportOptions(context, state),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'Tendencia'),
@@ -43,20 +99,43 @@ class AnalysisPage extends StatelessWidget {
           ),
           body: BlocBuilder<AnalysisBloc, AnalysisState>(
             builder: (context, state) {
-              if (state is AnalysisLoading && (state is! AnalysisLoaded)) { // Only show full loading if no data
-                return const Center(child: CircularProgressIndicator());
+              TrendAnalysis? trendData;
+              ConditionalProbabilityResult? probabilityData;
+              bool isLoading = false;
+
+              if (state is AnalysisLoading) {
+                trendData = state.previousTrendData;
+                probabilityData = state.previousProbabilityData;
+                isLoading = true;
+              } else if (state is AnalysisLoaded) {
+                trendData = state.trendData;
+                probabilityData = state.probabilityData;
               } else if (state is AnalysisError) {
                 return Center(child: Text('Error: ${state.message}'));
-              } else if (state is AnalysisLoaded) {
-                return TabBarView(
-                  children: [
-                    _buildTrendView(context, state),
-                    _buildProbabilityView(context, state),
-                    _buildHypothesisView(context),
-                  ],
-                );
               }
-              return const SizedBox.shrink();
+
+              if (isLoading && trendData == null && probabilityData == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return Stack(
+                children: [
+                   TabBarView(
+                    children: [
+                      _buildTrendView(context, trendData, probabilityData),
+                      _buildProbabilityView(context, probabilityData),
+                      _buildHypothesisView(context),
+                    ],
+                  ),
+                  if (isLoading)
+                    const Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: LinearProgressIndicator(minHeight: 2),
+                    ),
+                ],
+              );
             },
           ),
         ),
@@ -64,8 +143,7 @@ class AnalysisPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTrendView(BuildContext context, AnalysisLoaded state) {
-    final data = state.trendData;
+  Widget _buildTrendView(BuildContext context, TrendAnalysis? data, ConditionalProbabilityResult? probabilityData) {
     if (data == null) {
       return const Center(child: Text('No hay datos de tendencia disponibles'));
     }
@@ -87,8 +165,7 @@ class AnalysisPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProbabilityView(BuildContext context, AnalysisLoaded state) {
-    final data = state.probabilityData;
+  Widget _buildProbabilityView(BuildContext context, ConditionalProbabilityResult? data) {
     if (data == null) {
       return const Center(child: Text('No hay datos de probabilidad disponibles'));
     }

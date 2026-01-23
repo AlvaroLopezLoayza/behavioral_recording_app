@@ -126,37 +126,53 @@ class _PatientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          // Navigate to patient's behavior list
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BehaviorDefinitionListPage(patientId: patient.id), 
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(20),
-                child: Text(
-                  patient.firstName.substring(0, 1).toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 400),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Card(
+        elevation: 1, // Subtler shadow
+        shadowColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        margin: const EdgeInsets.only(bottom: 12),
+        child: InkWell(
+          onTap: () {
+            // Navigate to patient's behavior list
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BehaviorDefinitionListPage(patientId: patient.id), 
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Hero(
+                  tag: 'avatar_${patient.id}',
+                  child: CircleAvatar(
+                    radius: 28, // Slightly larger
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+                    child: Text(
+                      patient.firstName.substring(0, 1).toUpperCase(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
                   ),
                 ),
-              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

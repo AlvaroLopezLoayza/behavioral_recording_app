@@ -4,17 +4,28 @@ import '../../domain/entities/behavior_definition.dart';
 /// Converts between domain entities and JSON for Supabase
 class BehaviorDefinitionModel extends BehaviorDefinition {
   const BehaviorDefinitionModel({
-    required super.id,
-    required super.name,
-    required super.operationalDefinition,
-    required super.isObservable,
-    required super.isMeasurable,
-    required super.dimensions,
-    super.patientId,
-    required super.createdBy,
-    required super.createdAt,
-    required super.updatedAt,
-  });
+    required String id,
+    required String name,
+    required String operationalDefinition,
+    required bool isObservable,
+    required bool isMeasurable,
+    required List<String> dimensions,
+    String? patientId,
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : super(
+          id: id,
+          name: name,
+          operationalDefinition: operationalDefinition,
+          isObservable: isObservable,
+          isMeasurable: isMeasurable,
+          dimensions: dimensions,
+          patientId: patientId,
+          createdBy: createdBy,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        );
 
   /// Create a model from JSON (from Supabase)
   factory BehaviorDefinitionModel.fromJson(Map<String, dynamic> json) {

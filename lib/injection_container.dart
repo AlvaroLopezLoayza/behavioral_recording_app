@@ -38,6 +38,7 @@ import 'features/hypothesis/presentation/bloc/hypothesis_bloc.dart';
 import 'features/intervention/data/datasources/intervention_remote_datasource.dart';
 import 'features/intervention/data/repositories/intervention_repository_impl.dart';
 import 'features/intervention/domain/repositories/intervention_repository.dart';
+import 'features/intervention/domain/usecases/get_phase_changes.dart';
 import 'features/intervention/presentation/bloc/intervention_bloc.dart';
 import 'features/authentication/presentation/bloc/auth_bloc.dart';
 
@@ -47,6 +48,7 @@ import 'features/patient/data/repositories/patient_repository_impl.dart';
 import 'features/patient/domain/repositories/patient_repository.dart';
 import 'features/patient/presentation/bloc/patient_bloc.dart';
 import 'features/patient/presentation/bloc/patient_access_bloc.dart';
+import 'features/patient/domain/usecases/get_patient_by_id.dart';
 
 // Context Feature
 import 'features/context/data/datasources/context_remote_datasource.dart';
@@ -54,11 +56,15 @@ import 'features/context/data/repositories/context_repository_impl.dart';
 import 'features/context/domain/repositories/context_repository.dart';
 import 'features/context/presentation/bloc/context_bloc.dart';
 
-// Hypothesis Feature
-import 'features/hypothesis/data/datasources/hypothesis_remote_datasource.dart';
-import 'features/hypothesis/data/repositories/hypothesis_repository_impl.dart';
-import 'features/hypothesis/domain/repositories/hypothesis_repository.dart';
-import 'features/hypothesis/presentation/bloc/hypothesis_bloc.dart';
+// Reliability Feature
+import 'features/reliability/data/datasources/reliability_remote_datasource.dart';
+import 'features/reliability/data/repositories/reliability_repository_impl.dart';
+import 'features/reliability/domain/repositories/reliability_repository.dart';
+import 'features/reliability/domain/usecases/calculate_ioa.dart';
+import 'features/reliability/domain/usecases/get_reliability_records.dart';
+import 'features/reliability/domain/usecases/save_reliability_record.dart';
+import 'features/reliability/presentation/bloc/reliability_bloc.dart';
+
 
 final sl = GetIt.instance;
 
@@ -108,7 +114,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => CreateAbcRecord(sl()));
   sl.registerLazySingleton(() => GetRecordsByBehavior(sl()));
   
-  sl.registerLazySingleton(() => GetBehaviorTrend(sl()));
+  sl.registerLazySingleton(() => GetBehaviorTrend(sl(), sl()));
   sl.registerLazySingleton(() => GetConditionalProbabilities(sl()));
   
   sl.registerLazySingleton(() => SignIn(sl()));
@@ -135,6 +141,7 @@ Future<void> initializeDependencies() async {
     () => AnalysisBloc(
       getBehaviorTrend: sl(),
       getConditionalProbabilities: sl(),
+      getPhaseChanges: sl(),
     ),
   );
   
@@ -202,6 +209,30 @@ Future<void> initializeDependencies() async {
   sl.registerFactory(
     () => InterventionBloc(
       repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetPhaseChanges(sl()));
+  sl.registerLazySingleton(() => GetPatientById(sl()));
+
+  // Reliability Feature
+  sl.registerLazySingleton<ReliabilityRemoteDataSource>(
+    () => ReliabilityRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ReliabilityRepository>(
+    () => ReliabilityRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => CalculateIOA(sl()));
+  sl.registerLazySingleton(() => GetReliabilityRecords(sl()));
+  sl.registerLazySingleton(() => SaveReliabilityRecord(sl()));
+
+  sl.registerFactory(
+    () => ReliabilityBloc(
+      calculateIOA: sl(),
+      getReliabilityRecords: sl(),
+      saveReliabilityRecord: sl(),
     ),
   );
 }
