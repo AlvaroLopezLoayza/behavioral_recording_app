@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../intervention/domain/usecases/get_phase_changes.dart';
+import '../../domain/entities/conditional_probability.dart';
+import '../../domain/entities/trend_analysis.dart';
 import '../../domain/usecases/get_behavior_trend.dart';
 import '../../domain/usecases/get_conditional_probabilities.dart';
-import '../../../intervention/domain/usecases/get_phase_changes.dart';
 import '../bloc/analysis_event.dart';
 import '../bloc/analysis_state.dart';
-import '../../domain/entities/trend_analysis.dart';
-import '../../domain/entities/conditional_probability.dart';
 
 class AnalysisBloc extends Bloc<AnalysisEvent, AnalysisState> {
   final GetBehaviorTrend getBehaviorTrend;

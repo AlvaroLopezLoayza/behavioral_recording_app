@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
+
 import '../../../../core/error/exceptions.dart';
-import '../datasources/hypothesis_remote_datasource.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/functional_hypothesis.dart';
 import '../../domain/repositories/hypothesis_repository.dart';
+import '../datasources/hypothesis_remote_datasource.dart';
 import '../models/functional_hypothesis_model.dart';
 
 class HypothesisRepositoryImpl implements HypothesisRepository {

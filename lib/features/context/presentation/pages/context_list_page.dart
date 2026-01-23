@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+
 import '../../../../injection_container.dart';
-import '../../domain/entities/clinical_context.dart';
 import '../bloc/context_bloc.dart';
 import '../bloc/context_event.dart';
 import '../bloc/context_state.dart';
@@ -72,28 +72,34 @@ class ContextListView extends StatelessWidget {
               ),
             );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: state.contexts.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final item = state.contexts[index];
-              return Card(
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.place)),
-                  title: Text(item.name),
-                  subtitle: Text(item.type + (item.description.isNotEmpty ? ' - ${item.description}' : '')),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () {
-                      context.read<ContextBloc>().add(
-                        DeleteContextEvent(id: item.id, patientId: item.patientId),
-                      );
-                    },
-                  ),
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<ContextBloc>().add(LoadContexts(patientId: patientId));
+              await Future.delayed(const Duration(milliseconds: 500));
             },
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: state.contexts.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final item = state.contexts[index];
+                return Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.place)),
+                    title: Text(item.name),
+                    subtitle: Text(item.type + (item.description.isNotEmpty ? ' - ${item.description}' : '')),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () {
+                        context.read<ContextBloc>().add(
+                          DeleteContextEvent(id: item.id, patientId: item.patientId),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         }
         return const SizedBox.shrink();

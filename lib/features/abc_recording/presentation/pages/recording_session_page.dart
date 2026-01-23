@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../main.dart'; // To access global supabase client
 
 import '../../../../injection_container.dart';
+import '../../../../main.dart'; // To access global supabase client
 import '../../../behavior_definition/domain/entities/behavior_definition.dart';
 import '../../domain/entities/abc_record.dart';
 import '../../domain/entities/behavior_occurrence.dart';
 import '../bloc/abc_recording_bloc.dart';
 import '../bloc/abc_recording_event.dart';
 import '../bloc/abc_recording_state.dart';
-import '../widgets/duration_recording_widget.dart';
-import '../widgets/interval_recording_widget.dart';
 import '../widgets/abc_form_widget.dart';
+import '../widgets/duration_recording_widget.dart';
 import '../widgets/event_counter_widget.dart';
+import '../widgets/interval_recording_widget.dart';
 
 class RecordingSessionPage extends StatefulWidget {
   final BehaviorDefinition definition;

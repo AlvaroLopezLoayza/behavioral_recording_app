@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'behavior_occurrence.dart';
 
 enum RecordingType { event, interval, continuous }

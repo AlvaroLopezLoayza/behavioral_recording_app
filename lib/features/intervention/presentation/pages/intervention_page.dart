@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../injection_container.dart';
 import '../../../hypothesis/domain/entities/functional_hypothesis.dart';
 import '../bloc/intervention_bloc.dart';

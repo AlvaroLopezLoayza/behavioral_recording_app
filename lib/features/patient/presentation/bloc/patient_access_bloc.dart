@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../domain/repositories/patient_repository.dart';
 import 'patient_access_event.dart';
 import 'patient_access_state.dart';

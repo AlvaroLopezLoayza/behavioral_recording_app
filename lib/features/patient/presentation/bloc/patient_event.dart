@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/patient.dart';
 
 abstract class PatientEvent extends Equatable {
   const PatientEvent();

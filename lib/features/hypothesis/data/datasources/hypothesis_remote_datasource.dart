@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../models/functional_hypothesis_model.dart';
-import '../../domain/entities/functional_hypothesis.dart';
 
 abstract class HypothesisRemoteDataSource {
   Future<FunctionalHypothesisModel> createHypothesis(FunctionalHypothesisModel hypothesis);

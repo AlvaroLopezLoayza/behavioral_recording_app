@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Access global client if needed, or better via DI
 import 'package:uuid/uuid.dart';
+
 import '../../domain/entities/patient.dart';
 import '../../domain/repositories/patient_repository.dart';
 import 'patient_event.dart';
@@ -50,7 +51,8 @@ class PatientBloc extends Bloc<PatientEvent, PatientState> {
       (failure) => emit(PatientError(failure.message)),
       (patient) {
         emit(const PatientOperationSuccess("Paciente creado exitosamente"));
-        add(LoadPatients()); // Reload list
+        // Note: PatientListPage will reload when it receives the navigation result (true)
+        // No need to trigger LoadPatients here as this bloc is isolated to the form page
       },
     );
   }

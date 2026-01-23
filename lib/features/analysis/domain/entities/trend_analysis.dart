@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../../intervention/domain/entities/phase_change.dart';
 
 class DailyFrequency extends Equatable {

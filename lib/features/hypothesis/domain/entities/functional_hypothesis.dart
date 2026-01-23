@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'function_type.dart';
 
 enum HypothesisStatus { draft, active, disproven, verified }

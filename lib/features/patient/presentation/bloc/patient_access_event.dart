@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/access_role.dart';
 
 abstract class PatientAccessEvent extends Equatable {

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../features/abc_recording/presentation/pages/recording_session_page.dart';
+import '../../../../features/analysis/presentation/pages/analysis_page.dart';
+import '../../../../features/authentication/presentation/bloc/auth_bloc.dart';
+import '../../../../features/authentication/presentation/bloc/auth_event.dart';
+import '../../../../features/patient/domain/usecases/get_patient_by_id.dart';
+import '../../../../features/reliability/presentation/pages/reliability_page.dart';
 import '../../../../injection_container.dart';
 import '../bloc/behavior_definition_bloc.dart';
 import '../bloc/behavior_definition_event.dart';
 import '../bloc/behavior_definition_state.dart';
-import '../../../../features/abc_recording/presentation/pages/recording_session_page.dart';
-import '../../../../features/analysis/presentation/pages/analysis_page.dart';
 import 'behavior_definition_form_page.dart';
-import '../../../../features/authentication/presentation/bloc/auth_bloc.dart';
-import '../../../../features/authentication/presentation/bloc/auth_event.dart';
-import '../../../../features/reliability/presentation/pages/reliability_page.dart';
-import '../../../../features/patient/domain/usecases/get_patient_by_id.dart';
-import '../../../../features/patient/domain/entities/patient.dart';
 
 class BehaviorDefinitionListPage extends StatelessWidget {
   final String? patientId;
@@ -24,96 +24,102 @@ class BehaviorDefinitionListPage extends StatelessWidget {
       child: Scaffold(
         body: BlocBuilder<BehaviorDefinitionBloc, BehaviorDefinitionState>(
           builder: (context, state) {
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 120.0,
-                  floating: true,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: Text(
-                      'Comportamientos',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    centerTitle: false,
-                    titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
-                  ),
-                  actions: [
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.sort_rounded),
-                        tooltip: 'Ordenar'),
-                    if (patientId != null)
-                      IconButton(
-                        onPressed: () async {
-                          final getPatient = sl<GetPatientById>();
-                          final result = await getPatient(patientId!);
-                          result.fold(
-                            (failure) => ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(failure.message)),
-                            ),
-                            (patient) => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReliabilityPage(patient: patient),
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.verified_user_outlined),
-                        tooltip: 'Reliability / IOA',
-                      ),
-                    IconButton(
-                        onPressed: () {
-                          context.read<AuthBloc>().add(SignOutEvent());
-                        },
-                        icon: const Icon(Icons.logout_rounded),
-                        tooltip: 'Cerrar Sesión'),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-                if (state is BehaviorDefinitionLoading)
-                  const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state is BehaviorDefinitionError)
-                  SliverFillRemaining(
-                    child: Center(child: Text('Error: ${state.message}')),
-                  )
-                else if (state is BehaviorDefinitionLoaded)
-                  if (state.definitions.isEmpty)
-                    const SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.spa_outlined, size: 64, color: Colors.grey),
-                            SizedBox(height: 16),
-                            Text('No hay comportamientos', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                          ],
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<BehaviorDefinitionBloc>().add(LoadBehaviorDefinitions(patientId: patientId));
+                await Future.delayed(const Duration(milliseconds: 500));
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 120.0,
+                    floating: true,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        'Comportamientos',
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.all(16),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final definition = state.definitions[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: _BehaviorCard(definition: definition),
+                      centerTitle: false,
+                      titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+                    ),
+                    actions: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.sort_rounded),
+                          tooltip: 'Ordenar'),
+                      if (patientId != null)
+                        IconButton(
+                          onPressed: () async {
+                            final getPatient = sl<GetPatientById>();
+                            final result = await getPatient(patientId!);
+                            result.fold(
+                              (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(failure.message)),
+                              ),
+                              (patient) => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReliabilityPage(patient: patient),
+                                ),
+                              ),
                             );
                           },
-                          childCount: state.definitions.length,
+                          icon: const Icon(Icons.verified_user_outlined),
+                          tooltip: 'Reliability / IOA',
+                        ),
+                      IconButton(
+                          onPressed: () {
+                            context.read<AuthBloc>().add(SignOutEvent());
+                          },
+                          icon: const Icon(Icons.logout_rounded),
+                          tooltip: 'Cerrar Sesión'),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  if (state is BehaviorDefinitionLoading)
+                    const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (state is BehaviorDefinitionError)
+                    SliverFillRemaining(
+                      child: Center(child: Text('Error: ${state.message}')),
+                    )
+                  else if (state is BehaviorDefinitionLoaded)
+                    if (state.definitions.isEmpty)
+                      const SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.spa_outlined, size: 64, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text('No hay comportamientos', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final definition = state.definitions[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _BehaviorCard(definition: definition),
+                              );
+                            },
+                            childCount: state.definitions.length,
+                          ),
                         ),
                       ),
-                    ),
-              ],
+                ],
+              ),
             );
           },
         ),

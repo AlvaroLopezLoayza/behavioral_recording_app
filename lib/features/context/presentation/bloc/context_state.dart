@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/clinical_context.dart';
 
 abstract class ContextState extends Equatable {

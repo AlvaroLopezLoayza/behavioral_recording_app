@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/usecases/usecase.dart';
+
 import '../../domain/usecases/create_behavior_definition.dart';
 import '../../domain/usecases/get_behavior_definitions.dart';
 import 'behavior_definition_event.dart';

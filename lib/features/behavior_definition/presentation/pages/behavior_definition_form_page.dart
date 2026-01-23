@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import '../../../../main.dart'; // To access global supabase client
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../../injection_container.dart';
+import '../../../../main.dart'; // To access global supabase client
 import '../../domain/entities/behavior_definition.dart';
 import '../bloc/behavior_definition_bloc.dart';
 import '../bloc/behavior_definition_event.dart';

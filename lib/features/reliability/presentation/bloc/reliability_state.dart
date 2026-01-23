@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/reliability_record.dart';
 
 abstract class ReliabilityState extends Equatable {

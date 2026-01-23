@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../domain/repositories/hypothesis_repository.dart';
 import 'hypothesis_event.dart';
 import 'hypothesis_state.dart';

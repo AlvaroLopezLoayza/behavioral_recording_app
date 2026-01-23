@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../models/abc_record_model.dart';
-import '../../domain/entities/abc_record.dart';
 
 abstract class AbcRecordingRemoteDataSource {
   Future<AbcRecordModel> createAbcRecord(AbcRecordModel model);

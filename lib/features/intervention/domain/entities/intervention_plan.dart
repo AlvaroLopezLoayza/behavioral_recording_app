@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'intervention_strategy.dart';
 
 enum InterventionStatus {

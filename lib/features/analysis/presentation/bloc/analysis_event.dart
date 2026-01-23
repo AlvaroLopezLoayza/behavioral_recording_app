@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/trend_analysis.dart';
 
 abstract class AnalysisEvent extends Equatable {
   const AnalysisEvent();

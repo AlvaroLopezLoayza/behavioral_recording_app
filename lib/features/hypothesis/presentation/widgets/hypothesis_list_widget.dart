@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../behavior_definition/domain/entities/behavior_definition.dart';
 import '../../../intervention/presentation/pages/intervention_page.dart';
+import '../../domain/entities/functional_hypothesis.dart';
 import '../bloc/hypothesis_bloc.dart';
 import '../bloc/hypothesis_event.dart';
 import '../bloc/hypothesis_state.dart';
 import '../widgets/hypothesis_form_dialog.dart';
-import '../../domain/entities/functional_hypothesis.dart';
 
 class HypothesisListWidget extends StatelessWidget {
   final BehaviorDefinition behavior;

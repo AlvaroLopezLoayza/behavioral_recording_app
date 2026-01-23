@@ -1,11 +1,10 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../../../abc_recording/domain/entities/abc_record.dart';
 import '../../../abc_recording/domain/repositories/abc_recording_repository.dart';
-import '../entities/trend_analysis.dart';
 import '../../../intervention/domain/repositories/intervention_repository.dart';
-import '../../../intervention/domain/entities/phase_change.dart';
+import '../entities/trend_analysis.dart';
 
 class GetBehaviorTrendParams {
   final String behaviorDefinitionId;

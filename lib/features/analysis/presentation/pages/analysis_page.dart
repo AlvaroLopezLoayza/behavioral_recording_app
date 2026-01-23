@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/util/report_export_service.dart';
 import '../../../../injection_container.dart';
 import '../../../behavior_definition/domain/entities/behavior_definition.dart';
+import '../../../hypothesis/presentation/bloc/hypothesis_bloc.dart';
+import '../../../hypothesis/presentation/bloc/hypothesis_event.dart';
+import '../../../hypothesis/presentation/widgets/hypothesis_list_widget.dart';
+import '../../domain/entities/conditional_probability.dart';
+import '../../domain/entities/trend_analysis.dart';
 import '../bloc/analysis_bloc.dart';
 import '../bloc/analysis_event.dart';
 import '../bloc/analysis_state.dart';
 import '../widgets/trend_chart_widget.dart';
-import '../../../hypothesis/presentation/bloc/hypothesis_bloc.dart';
-import '../../../hypothesis/presentation/bloc/hypothesis_event.dart';
-import '../../../hypothesis/presentation/widgets/hypothesis_list_widget.dart';
-import '../../../../core/util/report_export_service.dart';
-import '../../domain/entities/trend_analysis.dart';
-import '../../domain/entities/conditional_probability.dart';
 
 class AnalysisPage extends StatelessWidget {
   final BehaviorDefinition definition;

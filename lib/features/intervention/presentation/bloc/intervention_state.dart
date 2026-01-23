@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/intervention_plan.dart';
 
 abstract class InterventionState extends Equatable {

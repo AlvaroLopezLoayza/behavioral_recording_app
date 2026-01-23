@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/patient.dart';
 
 abstract class PatientState extends Equatable {

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/behavior_definition.dart';
 
 abstract class BehaviorDefinitionEvent extends Equatable {

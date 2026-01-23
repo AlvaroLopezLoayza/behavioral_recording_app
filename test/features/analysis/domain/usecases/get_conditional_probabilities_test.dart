@@ -1,12 +1,11 @@
+import 'package:behavioral_recording_app/features/abc_recording/domain/entities/abc_record.dart';
+import 'package:behavioral_recording_app/features/abc_recording/domain/entities/behavior_occurrence.dart';
+import 'package:behavioral_recording_app/features/abc_recording/domain/repositories/abc_recording_repository.dart';
+import 'package:behavioral_recording_app/features/analysis/domain/usecases/get_conditional_probabilities.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:behavioral_recording_app/features/abc_recording/domain/repositories/abc_recording_repository.dart';
-import 'package:behavioral_recording_app/features/abc_recording/domain/entities/abc_record.dart';
-import 'package:behavioral_recording_app/features/abc_recording/domain/entities/behavior_occurrence.dart';
-import 'package:behavioral_recording_app/features/analysis/domain/usecases/get_conditional_probabilities.dart';
-import 'package:behavioral_recording_app/features/analysis/domain/entities/conditional_probability.dart';
 
 import 'get_conditional_probabilities_test.mocks.dart';
 

@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/clinical_context.dart';
 import '../../domain/repositories/context_repository.dart';
-import '../models/context_model.dart';
 import '../datasources/context_remote_datasource.dart';
+import '../models/context_model.dart';
 
 class ContextRepositoryImpl implements ContextRepository {
   final ContextRemoteDataSource remoteDataSource;

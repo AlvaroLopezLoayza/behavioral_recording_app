@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/functional_hypothesis.dart';
 
 abstract class HypothesisEvent extends Equatable {

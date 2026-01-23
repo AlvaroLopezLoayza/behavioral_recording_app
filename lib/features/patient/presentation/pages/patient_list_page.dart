@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../features/behavior_definition/presentation/pages/behavior_definition_list_page.dart';
 import '../../../../injection_container.dart';
-import '../../../../main.dart';
 import '../../../authentication/presentation/bloc/auth_bloc.dart';
 import '../../../authentication/presentation/bloc/auth_event.dart';
 import '../../domain/entities/patient.dart';
 import '../bloc/patient_bloc.dart';
 import '../bloc/patient_event.dart';
 import '../bloc/patient_state.dart';
-import 'patient_form_page.dart';
-import '../../../../features/behavior_definition/presentation/pages/behavior_definition_list_page.dart';
 import 'patient_access_page.dart';
+import 'patient_form_page.dart';
 
 class PatientListPage extends StatelessWidget {
   const PatientListPage({super.key});
@@ -78,13 +78,20 @@ class PatientListPage extends StatelessWidget {
                 );
               }
               
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.patients.length,
-                itemBuilder: (context, index) {
-                  final patient = state.patients[index];
-                  return _PatientCard(patient: patient);
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<PatientBloc>().add(LoadPatients());
+                  // Wait a bit for the bloc to process
+                  await Future.delayed(const Duration(milliseconds: 500));
                 },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.patients.length,
+                  itemBuilder: (context, index) {
+                    final patient = state.patients[index];
+                    return _PatientCard(patient: patient);
+                  },
+                ),
               );
             }
             return const SizedBox.shrink();

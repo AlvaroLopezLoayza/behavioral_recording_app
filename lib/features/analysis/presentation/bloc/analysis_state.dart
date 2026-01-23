@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/conditional_probability.dart';
 import '../../domain/entities/trend_analysis.dart';
 

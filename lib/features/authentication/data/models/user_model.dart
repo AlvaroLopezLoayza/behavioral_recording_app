@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
+
 import '../../domain/entities/user.dart';
 
 class UserModel extends User {

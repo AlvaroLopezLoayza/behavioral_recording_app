@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'access_role.dart';
 
 class PatientAccess extends Equatable {

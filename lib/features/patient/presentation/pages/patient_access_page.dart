@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+
+import '../../../../features/context/presentation/pages/context_list_page.dart';
 import '../../../../injection_container.dart';
-import '../../domain/entities/patient.dart';
 import '../../domain/entities/access_role.dart';
+import '../../domain/entities/patient.dart';
 import '../bloc/patient_access_bloc.dart';
 import '../bloc/patient_access_event.dart';
 import '../bloc/patient_access_state.dart';
-import '../../../../features/context/presentation/pages/context_list_page.dart';
 
 class PatientAccessPage extends StatelessWidget {
   final Patient patient;
@@ -164,46 +165,52 @@ class _AccessList extends StatelessWidget {
              return const Center(child: Text('Solo tú tienes acceso.'));
            }
            
-           return ListView.builder(
-             itemCount: state.accessList.length,
-             itemBuilder: (context, index) {
-               final access = state.accessList[index];
-               return ListTile(
-                 leading: CircleAvatar(child: Text(access.userEmail?[0].toUpperCase() ?? '?')),
-                 title: Text(access.userEmail ?? 'Usuario Desconocido'),
-                 subtitle: Text('Rol: ${access.role.toStringValue.toUpperCase()}'),
-                 trailing: IconButton(
-                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                   onPressed: () {
-                     // Confirm dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Revocar Acceso'),
-                          content: const Text('¿Estás seguro?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                // Find bloc from parent context (not this dialog context)
-                                // We need to capture the bloc instance
-                              },
-                              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      ).then((confirmed) {
-                         // Actually implementing the call here is tricky because context is lost.
-                         // But simplistically:
-                         context.read<PatientAccessBloc>().add(
-                            RevokeAccessEvent(accessId: access.id, patientId: patient.id)
-                         );
-                      });
-                   },
-                 ),
-               );
+           return RefreshIndicator(
+             onRefresh: () async {
+               context.read<PatientAccessBloc>().add(LoadPatientAccess(patient.id));
+               await Future.delayed(const Duration(milliseconds: 500));
              },
+             child: ListView.builder(
+               itemCount: state.accessList.length,
+               itemBuilder: (context, index) {
+                 final access = state.accessList[index];
+                 return ListTile(
+                   leading: CircleAvatar(child: Text(access.userEmail?[0].toUpperCase() ?? '?')),
+                   title: Text(access.userEmail ?? 'Usuario Desconocido'),
+                   subtitle: Text('Rol: ${access.role.toStringValue.toUpperCase()}'),
+                   trailing: IconButton(
+                     icon: const Icon(Icons.delete_outline, color: Colors.red),
+                     onPressed: () {
+                       // Confirm dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Revocar Acceso'),
+                            content: const Text('¿Estás seguro?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // Find bloc from parent context (not this dialog context)
+                                  // We need to capture the bloc instance
+                                },
+                                child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        ).then((confirmed) {
+                           // Actually implementing the call here is tricky because context is lost.
+                           // But simplistically:
+                           context.read<PatientAccessBloc>().add(
+                              RevokeAccessEvent(accessId: access.id, patientId: patient.id)
+                           );
+                        });
+                     },
+                   ),
+                 );
+               },
+             ),
            );
         }
         return const SizedBox.shrink();

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/abc_record.dart';
 
 abstract class AbcRecordingState extends Equatable {

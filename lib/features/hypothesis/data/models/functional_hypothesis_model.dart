@@ -1,5 +1,5 @@
-import '../../domain/entities/functional_hypothesis.dart';
 import '../../domain/entities/function_type.dart';
+import '../../domain/entities/functional_hypothesis.dart';
 
 class FunctionalHypothesisModel extends FunctionalHypothesis {
   const FunctionalHypothesisModel({
