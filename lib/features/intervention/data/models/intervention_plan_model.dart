@@ -1,4 +1,5 @@
-import '../domain/entities/intervention_plan.dart';
+import '../../domain/entities/intervention_plan.dart';
+import '../../domain/entities/intervention_strategy.dart';
 import 'intervention_strategy_model.dart';
 
 class InterventionPlanModel extends InterventionPlan {

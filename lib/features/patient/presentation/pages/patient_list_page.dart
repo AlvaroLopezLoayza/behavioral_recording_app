@@ -90,29 +90,20 @@ class PatientListPage extends StatelessWidget {
             return const SizedBox.shrink();
           },
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PatientFormPage()),
-            );
-             if (result == true && context.mounted) {
-              // We need to find the BlocProvider above this context to reload, 
-              // but since FAB is outside the BlocBuilder, we might need to use a Builder or access via key.
-              // Actually, since we push new route, when we come back, this widget tree still exists. 
-              // We can't easily access the Bloc instantiated in `create` unless we extract it or use a key.
-              // BETTER APPROACH: Wrap the Navigator push in a Builder context that has access to the bloc
-              // OR trigger refresh from here if we can.
-              
-              // Simplest fix for now: Re-render this page or use a GlobalKey for the refresh, 
-              // or just rely on the fact that we might need to signal the bloc. 
-              // Actually, since we are inside the `build` method of `PatientListPage`, 
-              // `context.read<PatientBloc>()` will FAIL because the provider is created IN this build method.
-              // We need to wrap the body or use a Builder for the FAB.
-            }
-          },
-          label: const Text('Nuevo Paciente'),
-          icon: const Icon(Icons.person_add),
+        floatingActionButton: Builder(
+          builder: (builderContext) => FloatingActionButton.extended(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PatientFormPage()),
+              );
+              if (result == true && builderContext.mounted) {
+                builderContext.read<PatientBloc>().add(LoadPatients());
+              }
+            },
+            label: const Text('Nuevo Paciente'),
+            icon: const Icon(Icons.person_add),
+          ),
         ),
       ),
     );
@@ -173,45 +164,47 @@ class _PatientCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      patient.fullName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (patient.diagnosis != null)
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        patient.diagnosis!,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
+                        patient.fullName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                  ],
+                      if (patient.diagnosis != null)
+                        Text(
+                          patient.diagnosis!,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              IconButton( // Settings/Access button
-                icon: const Icon(Icons.settings, color: Colors.grey),
-                onPressed: () {
-                   Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PatientAccessPage(patient: patient),
-                    ),
-                  );
-                },
-              ),
-              Icon(Icons.chevron_right, color: Colors.grey[400]),
-            ],
+                IconButton( // Settings/Access button
+                  icon: const Icon(Icons.settings, color: Colors.grey),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PatientAccessPage(patient: patient),
+                      ),
+                    );
+                  },
+                ),
+                Icon(Icons.chevron_right, color: Colors.grey[400]),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+

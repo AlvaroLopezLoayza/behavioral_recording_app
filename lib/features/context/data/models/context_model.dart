@@ -1,4 +1,4 @@
-import '../domain/entities/clinical_context.dart';
+import '../../domain/entities/clinical_context.dart';
 
 class ContextModel extends ClinicalContext {
   const ContextModel({

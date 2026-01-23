@@ -23,7 +23,7 @@ class ContextRemoteDataSourceImpl implements ContextRemoteDataSource {
           .single();
       return ContextModel.fromJson(data);
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(e.toString());
     }
   }
 
@@ -38,7 +38,7 @@ class ContextRemoteDataSourceImpl implements ContextRemoteDataSource {
       
       return (data as List).map((json) => ContextModel.fromJson(json)).toList();
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(e.toString());
     }
   }
 
@@ -47,7 +47,7 @@ class ContextRemoteDataSourceImpl implements ContextRemoteDataSource {
     try {
       await client.from('contexts').delete().eq('id', id);
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(e.toString());
     }
   }
 }

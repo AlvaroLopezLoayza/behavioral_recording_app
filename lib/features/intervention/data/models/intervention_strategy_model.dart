@@ -1,4 +1,4 @@
-import '../domain/entities/intervention_strategy.dart';
+import '../../domain/entities/intervention_strategy.dart';
 
 class InterventionStrategyModel extends InterventionStrategy {
   const InterventionStrategyModel({

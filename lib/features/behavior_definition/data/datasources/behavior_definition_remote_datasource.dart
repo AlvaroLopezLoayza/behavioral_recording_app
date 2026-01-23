@@ -65,14 +65,15 @@ class BehaviorDefinitionRemoteDataSourceImpl implements BehaviorDefinitionRemote
   @override
   Stream<List<BehaviorDefinitionModel>> watchDefinitions({String? patientId}) {
     try {
-      var builder = supabaseClient
+      final builder = supabaseClient
           .from('behavior_definitions')
           .stream(primaryKey: ['id']);
-      if (patientId != null) {
-        builder = builder.eq('patient_id', patientId);
-      }
+      
+      final SupabaseStreamBuilder query = patientId != null 
+          ? builder.eq('patient_id', patientId) 
+          : builder;
           
-      return builder
+      return query
           .order('created_at', ascending: false)
           .map((data) => data
               .map((json) => BehaviorDefinitionModel.fromJson(json))

@@ -69,7 +69,7 @@ class _InterventionFormDialogState extends State<InterventionFormDialog> {
                   initialValue: widget.initialPlan?.replacementBehavior,
                   decoration: const InputDecoration(
                     labelText: 'Conducta de Reemplazo',
-                    placeholder: 'Ej. Solicitar ayuda de forma verbal',
+                    // placeholder: 'Ej. Solicitar ayuda de forma verbal',
                   ),
                   validator: FormBuilderValidators.required(),
                 ),

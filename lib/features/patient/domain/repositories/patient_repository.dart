@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
-import 'patient.dart';
-import 'patient_access.dart';
+import '../entities/patient.dart';
+import '../entities/patient_access.dart';
 import '../entities/access_role.dart';
 
 abstract class PatientRepository {
