@@ -58,7 +58,7 @@ class AbcRecordingBloc extends Bloc<AbcRecordingEvent, AbcRecordingState> {
     final result = await createRecordingSession(event.session);
     result.fold(
       (failure) => emit(AbcRecordingError(failure.message)),
-      (session) => emit(AbcRecordSaved()), // We can use a more specific state if needed
+      (session) => emit(RecordingSessionSaved()),
     );
   }
 }

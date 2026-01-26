@@ -199,6 +199,7 @@ class _PatientWorkflowDashboardState extends State<PatientWorkflowDashboard> {
                 // We pass the definition but the bloc holds the state too
                 builder: (context) => RecordingSessionPage(
                   definition: state.behavior!,
+                  patientId: widget.patient.id,
                 ),
               ),
             );

@@ -138,6 +138,7 @@ class BehaviorDefinitionListPage extends StatelessWidget {
                                 child: _BehaviorCard(
                                   definition: definition,
                                   mode: mode,
+                                  patientId: patientId,
                                 ),
                               );
                             },
@@ -180,10 +181,12 @@ class BehaviorDefinitionListPage extends StatelessWidget {
 class _BehaviorCard extends StatelessWidget {
   final dynamic definition; // Typing as dynamic to simplify for now, should be BehaviorDefinition
   final BehaviorListMode mode;
+  final String? patientId;
 
   const _BehaviorCard({
     required this.definition,
     required this.mode,
+    this.patientId,
   });
 
   @override
@@ -223,6 +226,7 @@ class _BehaviorCard extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => RecordingSessionPage(
                     definition: definition,
+                    patientId: definition.patientId ?? patientId ?? '',
                   ),
                 ),
               );

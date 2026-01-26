@@ -14,21 +14,48 @@ import '../../domain/entities/behavior_occurrence.dart';
 import '../../domain/entities/recording_session.dart';
 import '../bloc/abc_recording_bloc.dart';
 import '../bloc/abc_recording_event.dart';
+import '../bloc/abc_recording_state.dart';
 import '../widgets/abc_form_widget.dart';
 import '../widgets/active_recorder_widget.dart';
 import '../widgets/event_stream_list_widget.dart';
 import '../widgets/session_timer_widget.dart';
 
-class RecordingSessionPage extends StatefulWidget {
+class RecordingSessionPage extends StatelessWidget {
   final BehaviorDefinition definition;
+  final String patientId;
 
-  const RecordingSessionPage({super.key, required this.definition});
+  const RecordingSessionPage({
+    super.key,
+    required this.definition,
+    required this.patientId,
+  });
 
   @override
-  State<RecordingSessionPage> createState() => _RecordingSessionPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: sl<AbcRecordingBloc>(),
+      child: _RecordingSessionView(
+        definition: definition,
+        patientId: patientId,
+      ),
+    );
+  }
 }
 
-class _RecordingSessionPageState extends State<RecordingSessionPage> {
+class _RecordingSessionView extends StatefulWidget {
+  final BehaviorDefinition definition;
+  final String patientId;
+
+  const _RecordingSessionView({
+    required this.definition,
+    required this.patientId,
+  });
+
+  @override
+  State<_RecordingSessionView> createState() => _RecordingSessionViewState();
+}
+
+class _RecordingSessionViewState extends State<_RecordingSessionView> {
   final _uuid = const Uuid();
   List<AbcRecord> _sessionRecords = [];
   late DateTime _sessionStartTime;
@@ -84,6 +111,8 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
     );
   }
 
+  final _abcFormKey = GlobalKey<FormBuilderState>();
+
   void _showDetailSheet(AbcRecord record) {
      showModalBottomSheet(
       context: context,
@@ -115,8 +144,8 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: AbcFormWidget(
-                  formKey: GlobalKey<FormBuilderState>(),
-                  patientId: widget.definition.patientId ?? '',
+                  formKey: _abcFormKey,
+                  patientId: widget.patientId,
                   initialContextId: record.contextId,
                   onSave: () {
                      // Update record logic would go here
@@ -136,11 +165,21 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Use BlocListener to sync initial load if needed, but for "Session" 
-    // we might start empty or only show records from *this* session.
-    // usage of BlocProvider here is to keep access to the bloc.
-    return BlocProvider.value(
-      value: sl<AbcRecordingBloc>(),
+    return BlocListener<AbcRecordingBloc, AbcRecordingState>(
+      listener: (context, state) {
+        if (state is RecordingSessionSaved) {
+           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) Navigator.pop(context);
+           });
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(content: Text('Sesión guardada correctamente')),
+           );
+        } else if (state is AbcRecordingError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Error: ${state.message}')),
+          );
+        }
+      },
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         body: SafeArea(
@@ -167,16 +206,16 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                          const SizedBox(height: 4),
                          BlocBuilder<WorkflowBloc, WorkflowState>(
                            builder: (context, state) {
-                              return Row(
-                                children: [
-                                  const Icon(Icons.place, size: 16, color: Colors.blueGrey),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    state.context?.name ?? 'Sin Contexto',
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              );
+                               return Row(
+                                 children: [
+                                   const Icon(Icons.place, size: 16, color: Colors.blueGrey),
+                                   const SizedBox(width: 4),
+                                   Text(
+                                     state.context?.name ?? 'Sin Contexto',
+                                     style: const TextStyle(fontWeight: FontWeight.w600),
+                                   ),
+                                 ],
+                               );
                            },
                          ),
                       ],
@@ -246,7 +285,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                         onPressed: () {
                            // Cancel / Discard
                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (context.mounted) Navigator.pop(context);
+                               if (context.mounted) Navigator.pop(context);
                            });
                         },
                         child: const Text('Descartar'),
@@ -256,27 +295,25 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                           // Finish Session
-                           final session = RecordingSession(
-                             id: _uuid.v4(),
-                             patientId: widget.definition.patientId ?? '',
-                             startTime: _sessionStartTime,
-                             endTime: DateTime.now(),
-                             behaviorDefinitionId: widget.definition.id,
-                             observerId: supabase.auth.currentUser?.id,
-                           );
+                        final session = RecordingSession(
+                          id: _uuid.v4(),
+                          patientId: widget.patientId,
+                          startTime: _sessionStartTime,
+                          endTime: DateTime.now(),
+                          behaviorDefinitionId: widget.definition.id,
+                          observerId: supabase.auth.currentUser?.id,
+                        );
 
-                           context.read<AbcRecordingBloc>().add(
-                             SaveRecordingSession(session)
-                           );
+                        context
+                            .read<AbcRecordingBloc>()
+                            .add(SaveRecordingSession(session));
 
-                           context.read<WorkflowBloc>().add(
-                             WorkflowSessionCompleted(session)
-                           );
-                           WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (context.mounted) Navigator.pop(context);
-                           });
-                        },
+                        context
+                            .read<WorkflowBloc>()
+                            .add(WorkflowSessionCompleted(session));
+                        
+                        // Navigation is handled by BlocListener
+                      },
                         icon: const Icon(Icons.check_circle_outline),
                         label: const Text('Finalizar Sesión'),
                       ),
@@ -287,7 +324,7 @@ class _RecordingSessionPageState extends State<RecordingSessionPage> {
             ],
           ),
         ),
-      ),
+      )
     );
   }
 }

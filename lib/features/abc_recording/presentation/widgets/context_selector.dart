@@ -9,7 +9,7 @@ import '../../../context/presentation/bloc/context_bloc.dart';
 import '../../../context/presentation/bloc/context_event.dart';
 import '../../../context/presentation/bloc/context_state.dart';
 
-class ContextSelector extends StatelessWidget {
+class ContextSelector extends StatefulWidget {
   final String patientId;
   final String name;
 
@@ -20,9 +20,28 @@ class ContextSelector extends StatelessWidget {
   });
 
   @override
+  State<ContextSelector> createState() => _ContextSelectorState();
+}
+
+class _ContextSelectorState extends State<ContextSelector> {
+  late ContextBloc _contextBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _contextBloc = sl<ContextBloc>()..add(LoadContexts(widget.patientId));
+  }
+
+  @override
+  void dispose() {
+    _contextBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ContextBloc>()..add(LoadContexts(patientId)),
+    return BlocProvider.value(
+      value: _contextBloc,
       child: BlocBuilder<ContextBloc, ContextState>(
         builder: (context, state) {
           List<ClinicalContext> items = [];
@@ -48,7 +67,7 @@ class ContextSelector extends StatelessWidget {
           }
 
           return FormBuilderDropdown<String>(
-            name: name,
+            name: widget.name,
             decoration: const InputDecoration(
               labelText: 'Contexto / Ambiente',
               prefixIcon: Icon(Icons.place),

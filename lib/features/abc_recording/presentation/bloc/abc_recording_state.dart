@@ -28,3 +28,5 @@ class AbcRecordingError extends AbcRecordingState {
 }
 
 class AbcRecordSaved extends AbcRecordingState {}
+
+class RecordingSessionSaved extends AbcRecordingState {}
